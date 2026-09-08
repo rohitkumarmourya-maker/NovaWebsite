@@ -1,0 +1,27 @@
+{
+  "name": "nova-ventures-api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Secure form-to-email API for the Nova Ventures website (careers applications + contact enquiries).",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test:mail": "node scripts/send-test-mail.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "file-type": "^22.0.2",
+    "helmet": "^8.3.0",
+    "multer": "^2.3.0",
+    "nodemailer": "^10.0.1",
+    "zod": "^4.5.4"
+  }
+}

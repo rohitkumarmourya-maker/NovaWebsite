@@ -1,0 +1,13 @@
+{
+  "name": "Nova Ventures Innovation and Technology",
+  "short_name": "Nova Ventures",
+  "description": "Engineering, technology and enterprise across six businesses.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F7F4ED",
+  "theme_color": "#1B2632",
+  "icons": [
+    { "src": "/logos/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logos/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

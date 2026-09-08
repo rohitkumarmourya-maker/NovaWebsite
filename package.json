@@ -1,0 +1,41 @@
+{
+  "name": "nova-ventures",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Corporate website for Nova Ventures Innovation and Technology Private Limited",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "npm --prefix server run dev",
+    "images": "node scripts/optimize-images.mjs",
+    "hosting": "node scripts/generate-hosting-files.mjs",
+    "build": "tsc -b && npm run hosting && vite build && npm run prerender",
+    "prerender": "vite build --ssr src/entry-server.tsx --outDir dist-ssr --emptyOutDir && node scripts/prerender.mjs",
+    "preview": "SERVE_STATIC=true MAIL_DRY_RUN=true node server/src/index.js",
+    "lint": "oxlint",
+    "typecheck": "tsc -b",
+    "audit": "npm audit --omit=dev && npm --prefix server audit --omit=dev",
+    "postinstall": "npm --prefix server install --no-audit --no-fund"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "autoprefixer": "^10.5.4",
+    "oxlint": "^1.79.0",
+    "postcss": "^8.5.26",
+    "sharp": "^0.35.4",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.2"
+  }
+}

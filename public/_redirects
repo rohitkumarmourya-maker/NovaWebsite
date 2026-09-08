@@ -1,0 +1,2 @@
+# Prerendered pages are served as real files; anything unknown falls back to the app shell.
+/*    /index.html   200

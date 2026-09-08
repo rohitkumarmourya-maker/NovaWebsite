@@ -1,0 +1,159 @@
+@import './styles/fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-paper font-sans text-body text-ink-900 antialiased;
+  overflow-x: clip;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply font-display;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background-color: #f5a425;
+  color: #1b2632;
+}
+
+img,
+picture,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Keyboard focus only (mouse clicks don't show a ring). */
+:focus-visible {
+  outline: 2px solid #f5a425;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.container-nova {
+  @apply mx-auto w-full max-w-content px-5 sm:px-8 lg:px-12;
+}
+
+/* ------------------------------------------------------------------ */
+/* Components                                                          */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  .skip-link {
+    @apply fixed left-4 top-4 z-[100] -translate-y-24 rounded-full bg-graphite-900 px-5 py-3 text-small font-semibold text-white shadow-lift transition-transform focus:translate-y-0;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-graphite-900/15 bg-white px-4 py-3 text-body text-ink-900 shadow-none transition-colors placeholder:text-ink-400 hover:border-graphite-900/30 focus:border-ember-600 focus:outline-none focus:ring-2 focus:ring-ember/40 disabled:cursor-not-allowed disabled:bg-sand-50;
+  }
+
+  .field-input[aria-invalid='true'] {
+    @apply border-danger-600 focus:ring-danger-600/30;
+  }
+
+  .field-label {
+    @apply block text-small font-semibold text-ink-900;
+  }
+
+  .field-hint {
+    @apply mt-1.5 text-small text-ink-500;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-small font-medium text-danger-700;
+  }
+
+  .choice {
+    @apply flex cursor-pointer items-start gap-3 rounded-xl border border-graphite-900/10 bg-white px-4 py-3 text-body text-ink-700 transition-colors hover:border-graphite-900/35 has-[:checked]:border-graphite-900 has-[:checked]:bg-graphite-900 has-[:checked]:text-white;
+  }
+
+  .choice input {
+    @apply mt-1 h-4 w-4 shrink-0 accent-ember-600;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Motion                                                              */
+/* ------------------------------------------------------------------ */
+
+/* Scroll reveal: content is visible by default (no-JS, crawlers, prerendered HTML).
+   Only once JavaScript has booted (html.js) do below-the-fold blocks start hidden. */
+.reveal {
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+html.js .reveal:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(1.25rem);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html.js .page-enter {
+  animation: pageIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  html.js .reveal:not(.is-visible) {
+    opacity: 1;
+    transform: none;
+  }
+}
