@@ -1,3 +1,4 @@
+import CaseStudies from '../components/CaseStudies'
 import SiteImage from '../components/SiteImage'
 import { CtaBand, Eyebrow, PageHero } from '../components/Ui'
 import { Seo, breadcrumbJsonLd } from '../lib/head'
@@ -59,6 +60,8 @@ export default function Innovation() {
           </div>
         </div>
       </section>
+
+      <CaseStudies />
 
       <CtaBand title="Have a technology problem worth solving?" to="/contact" label="Discuss a Technology Requirement" />
     </>

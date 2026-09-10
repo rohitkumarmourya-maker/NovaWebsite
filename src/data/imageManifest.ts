@@ -35,6 +35,17 @@ export const imageManifest: Record<string, ImageVariant> = {
     ],
     "fallback": "/images/civil-construction-hero-1403.jpg"
   },
+  "civil-facility": {
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      480,
+      768,
+      1024,
+      1536
+    ],
+    "fallback": "/images/civil-facility-1536.jpg"
+  },
   "engineering-fabrication": {
     "width": 1536,
     "height": 1024,
@@ -78,6 +89,17 @@ export const imageManifest: Record<string, ImageVariant> = {
       1536
     ],
     "fallback": "/images/healthcare-hero-1536.jpg"
+  },
+  "healthcare-quality": {
+    "width": 1536,
+    "height": 1024,
+    "widths": [
+      480,
+      768,
+      1024,
+      1536
+    ],
+    "fallback": "/images/healthcare-quality-1536.jpg"
   },
   "hemm-hero": {
     "width": 1536,

@@ -236,7 +236,7 @@ export function RadioGroup({
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {options.map((o) => (
           <label key={o.value} className="choice">
-            <input type="radio" name={name} value={o.value} checked={value === o.value} onChange={() => onChange(o.value)} required={required} />
+            <input type="radio" aria-invalid={error ? 'true' : undefined} aria-describedby={describedBy(id, hint, error)} name={name} value={o.value} checked={value === o.value} onChange={() => onChange(o.value)} required={required} />
             <span>
               <span className="block font-semibold">{o.label}</span>
               {o.description && <span className="mt-0.5 block text-small opacity-80">{o.description}</span>}
@@ -318,14 +318,14 @@ export function FileField({
         }`}
         onDragOver={(e) => {
           e.preventDefault()
-          setDragging(true)
+          if (!inputRef.current?.matches(':disabled')) setDragging(true)
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => {
           e.preventDefault()
           setDragging(false)
           const f = e.dataTransfer.files?.[0]
-          if (f) onChange(f)
+          if (f && !inputRef.current?.matches(':disabled')) onChange(f)
         }}
       >
         <input

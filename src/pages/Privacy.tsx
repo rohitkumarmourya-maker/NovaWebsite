@@ -2,7 +2,7 @@ import { PageHero } from '../components/Ui'
 import { company } from '../data/site'
 import { Seo } from '../lib/head'
 
-const updated = '8 September 2026'
+const updated = '10 September 2026'
 
 export default function Privacy() {
   return (
@@ -31,7 +31,7 @@ export default function Privacy() {
                 <strong>Job and internship applications:</strong> the details you enter in the application form (identity and contact details, education, experience, skills, availability), your CV and, if you provide one, a cover letter.
               </li>
               <li>
-                <strong>Technical data:</strong> the API that delivers your form applies rate limits using your IP address for the duration of the request. We do not run analytics or advertising trackers and we set no marketing cookies.
+                <strong>Technical data:</strong> the API applies rate limits using your IP address. The IP address may also be included in the internal submission email for abuse investigation. We do not run analytics or advertising trackers and we set no marketing cookies.
               </li>
             </ul>
 
@@ -42,7 +42,7 @@ export default function Privacy() {
 
             <h2>4. Where it goes</h2>
             <p>
-              Form submissions are delivered by e-mail to {company.email}, which is operated on Google Workspace / Gmail infrastructure, and are handled only by people involved in the relevant enquiry or recruitment. We do not sell or share your information with third parties for their own purposes.
+              Form submissions are sent through the website mail service using codekraft.hub@gmail.com to Nova Ventures’ configured enquiry or careers inbox. The default inbox is {company.email}. Email and hosting providers process this information to deliver the service. Submissions are handled by people involved in the relevant enquiry or recruitment. We do not sell or share your information with third parties for their own purposes.
             </p>
 
             <h2>5. How long we keep it</h2>

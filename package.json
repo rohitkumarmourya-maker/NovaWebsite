@@ -2,10 +2,10 @@
   "name": "nova-ventures",
   "private": true,
   "version": "2.0.0",
-  "description": "Corporate website for Nova Ventures Innovation and Technology Private Limited",
+  "description": "Corporate website for Nova Ventures Innovation and Technology",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vite",
@@ -14,11 +14,13 @@
     "hosting": "node scripts/generate-hosting-files.mjs",
     "build": "tsc -b && npm run hosting && vite build && npm run prerender",
     "prerender": "vite build --ssr src/entry-server.tsx --outDir dist-ssr --emptyOutDir && node scripts/prerender.mjs",
-    "preview": "SERVE_STATIC=true MAIL_DRY_RUN=true node server/src/index.js",
+    "preview": "node scripts/preview.mjs",
     "lint": "oxlint",
     "typecheck": "tsc -b",
     "audit": "npm audit --omit=dev && npm --prefix server audit --omit=dev",
-    "postinstall": "npm --prefix server install --no-audit --no-fund"
+    "postinstall": "npm --prefix server ci --no-audit --no-fund",
+    "test": "node --test tests/*.test.mjs server/test/*.test.js",
+    "check": "npm run typecheck && npm run lint && npm test && npm run build"
   },
   "dependencies": {
     "react": "^19.2.8",

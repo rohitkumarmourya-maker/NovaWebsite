@@ -15,7 +15,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { businessIds, securityHeaders, siteUrl, staticRoutes } from '../site.config.mjs'
 
-const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
+const root = fileURLToPath(new URL('..', import.meta.url))
 const pub = path.join(root, 'public')
 const today = new Date().toISOString().slice(0, 10)
 
@@ -107,6 +107,11 @@ ${Object.entries(headers)
 
 const vercel = {
   $schema: 'https://openapi.vercel.sh/vercel.json',
+  framework: 'vite',
+  buildCommand: 'npm run build',
+  outputDirectory: 'dist',
+  installCommand: 'npm ci',
+  functions: { 'api/index.js': { maxDuration: 60, includeFiles: '{server/assets/**,shared/**}' } },
   cleanUrls: true,
   trailingSlash: false,
   headers: [
@@ -114,7 +119,10 @@ const vercel = {
     { source: '/assets/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
     { source: '/fonts/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
   ],
-  rewrites: [{ source: '/((?!api/|assets/|images/|logos/|fonts/).*)', destination: '/index.html' }],
+  rewrites: [
+    { source: '/api/:path*', destination: '/api' },
+    ...routes.filter((route) => route.path !== '/').map((route) => ({ source: route.path, destination: `${route.path}/index.html` })),
+  ],
 }
 
 await fs.writeFile(path.join(pub, 'sitemap.xml'), sitemap)

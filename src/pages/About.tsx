@@ -1,3 +1,5 @@
+import BusinessExplorer from '../components/BusinessExplorer'
+import Leadership from '../components/Leadership'
 import { Link } from 'react-router-dom'
 import { pillars, valuesNote } from '../data/site'
 import { CTAButton, Eyebrow, PageHero, SectionHeading } from '../components/Ui'
@@ -10,7 +12,7 @@ export default function About() {
     <>
       <Seo
         title="About"
-        description="About Nova Ventures Innovation and Technology Private Limited — one company, six businesses and one engineering mindset, registered in Chhattisgarh, India."
+        description="About Nova Ventures Innovation and Technology — one company, six businesses and one engineering mindset, registered in Chhattisgarh, India."
         path="/about"
         jsonLd={[breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'About', path: '/about' }])]}
       />
@@ -19,17 +21,25 @@ export default function About() {
       <section className="py-20 sm:py-28">
         <div className="container-nova grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
           <ScrollReveal>
-            <SiteImage id="who-we-are" sizes="(min-width: 1024px) 48vw, 100vw" />
+            <SiteImage id="who-we-are" fit="natural" sizes="(min-width: 1024px) 48vw, 100vw" />
           </ScrollReveal>
           <div className="flex flex-col justify-center gap-6 text-body text-ink-700">
             <Eyebrow>Who We Are</Eyebrow>
             <p>
-              Nova Ventures Innovation and Technology Private Limited brings together manufacturing, IT / software, skill development, civil and construction, HEMM, and health care products.
+              Nova Ventures Innovation and Technology brings together Manufacturing, IT, HEMM, Healthcare Products, Skill Development, and Civil & Construction.
             </p>
             <p>The businesses share an engineering-led approach focused on practical capability, technology, quality and long-term value.</p>
           </div>
         </div>
       </section>
+
+      <section className="py-20 sm:py-28">
+        <div className="container-nova">
+          <SectionHeading eyebrow="Explore Our Businesses" title="One engineering mindset, six ways it shows up." />
+          <div className="mt-14"><BusinessExplorer /></div>
+        </div>
+      </section>
+      <Leadership />
 
       <section className="bg-sand-50 py-20 sm:py-28">
         <div className="container-nova">
@@ -84,9 +94,9 @@ export default function About() {
         <div className="container-nova grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-20">
           <div>
             <Eyebrow>Future Direction</Eyebrow>
-            <h2 className="mt-6 text-h2 font-semibold text-graphite-900">An integrated hub at Sirgitti Industrial Area, Bilaspur.</h2>
+            <h2 className="mt-6 text-h2 font-semibold text-graphite-900">An integrated hub in Bilaspur.</h2>
             <p className="mt-4 max-w-prose text-body text-ink-700">
-              Nova Ventures is planning an integrated manufacturing, technology and skill development hub at Sirgitti Industrial Area, Bilaspur. See{' '}
+              Nova Ventures is planning an integrated manufacturing, technology and skill development hub in Bilaspur. See{' '}
               <Link to="/innovation" className="font-semibold text-ember-700 underline-offset-4 hover:underline">
                 Innovation
               </Link>{' '}

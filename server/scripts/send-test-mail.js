@@ -2,7 +2,7 @@
  * Sends a sample application e-mail (with a tiny PDF attached) so you can check the
  * mailbox layout without filling the form.   Usage:  cd server && npm run test:mail
  */
-import 'dotenv/config'
+import '../src/env.js'
 import { sendMail, verifyTransport } from '../src/mailer.js'
 import { applicationEmail, makeReference } from '../src/templates.js'
 
@@ -26,7 +26,7 @@ const info = await sendMail(
       applicationType: 'Job',
       position: 'Software Engineer',
       positionOther: '',
-      vertical: 'IT / Software',
+      vertical: 'IT',
       preferredLocation: 'Bilaspur',
       availability: '30 days',
       startDate: '',

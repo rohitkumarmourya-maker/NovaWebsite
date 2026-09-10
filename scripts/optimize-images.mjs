@@ -12,16 +12,15 @@
  *   public/logos/*                                optimised logo files + favicons / PWA icons
  *   src/data/imageManifest.ts                    generated manifest (dimensions + variants)
  *
- * Nothing is cropped: every variant keeps the source image's exact aspect ratio, so the
- * page layout (which reads width/height from the manifest) always shows the full picture,
- * including logos placed in the corners of the photographs.
+ * Source variants preserve the original ratio; SiteImage uses object-cover in
+ * consistent 3:2 business frames and supports fit=natural for uncropped artwork.
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 
-const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
+const root = fileURLToPath(new URL('..', import.meta.url))
 const srcDir = path.join(root, 'assets/images-source')
 const logoSrcDir = path.join(root, 'assets/logos-source')
 const outDir = path.join(root, 'public/images')

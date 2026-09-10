@@ -23,3 +23,8 @@ npm-debug.log*
 !.vscode/extensions.json
 .idea
 .DS_Store
+
+# Local browser QA and mail previews
+.playwright-cli/
+output/
+server/outbox/

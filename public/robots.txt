@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://www.novaventures.co.in/sitemap.xml
+Sitemap: https://nova-final-nine.vercel.app/sitemap.xml

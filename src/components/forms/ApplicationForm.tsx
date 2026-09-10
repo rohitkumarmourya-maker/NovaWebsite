@@ -17,6 +17,7 @@ import {
 import { company } from '../../data/site'
 import { ApiUnavailableError, submitApplication } from '../../lib/api'
 import { validateDocument, validators } from '../../lib/validation'
+import { useToast } from '../../lib/toast'
 import { Button } from '../Ui'
 import { CheckboxField, FileField, FormSection, RadioGroup, SelectField, TextArea, TextField } from './Field'
 
@@ -79,11 +80,24 @@ const initial: Values = {
 type Errors = Partial<Record<keyof Values | 'resume' | 'coverLetterFile', string>>
 
 export default function ApplicationForm({ presetPosition }: { presetPosition?: string }) {
-  const [values, setValues] = useState<Values>({ ...initial, position: presetPosition ?? '' })
+  const preset = openings.find((opening) => opening.title === presetPosition)
+  const startingValues: Values = { ...initial, position: preset?.title ?? '', vertical: preset?.vertical ?? '', applicationType: preset?.type === 'Job' || preset?.type === 'Internship' ? preset.type : '' }
+  const [values, setValues] = useState<Values>(startingValues)
+  const toast = useToast()
+  const sending = useRef(false)
+  const confirmationRef = useRef<HTMLDivElement>(null)
+  const [delivery, setDelivery] = useState<'accepted' | 'preview'>('accepted')
+  const [acknowledgement, setAcknowledgement] = useState('disabled')
   const [resume, setResume] = useState<File | null>(null)
   const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'offline'>('idle')
+  useEffect(() => {
+    if (status === 'success') {
+      confirmationRef.current?.focus({ preventScroll: true })
+      confirmationRef.current?.scrollIntoView({ block: 'center', behavior: 'instant' })
+    }
+  }, [status])
   const [serverMessage, setServerMessage] = useState('')
   const [reference, setReference] = useState('')
   const [honeypot, setHoneypot] = useState('')
@@ -103,7 +117,7 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
     () => [
       ...openings
         .filter((o) => !values.applicationType || o.type.includes(values.applicationType))
-        .map((o) => ({ value: o.title, label: `${o.title} — ${o.vertical}` })),
+        .map((o) => ({ value: o.title, label: `${o.title} - ${o.vertical}` })),
       { value: otherPositionLabel, label: otherPositionLabel },
     ],
     [values.applicationType],
@@ -115,6 +129,9 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
     e.position = validators.oneOf(positionOptions.map((p) => p.value))(values.position)
     if (values.position === otherPositionLabel) e.positionOther = validators.short(values.positionOther)
     e.vertical = validators.oneOf(verticals)(values.vertical)
+    const chosen = openings.find((opening) => opening.title === values.position)
+    if (chosen && chosen.vertical !== values.vertical) e.vertical = `Choose ${chosen.vertical} for this position.`
+    if (values.startDate && (Number.isNaN(Date.parse(values.startDate)) || new Date(values.startDate).toISOString().slice(0, 10) !== values.startDate)) e.startDate = 'Enter a valid calendar date.'
     e.preferredLocation = validators.optionalShort(values.preferredLocation)
     e.availability = validators.oneOf(isInternship ? internshipDurations : noticePeriods)(values.availability)
     e.fullName = validators.fullName(values.fullName)
@@ -137,16 +154,19 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
     e.declaration = validators.checked(values.declaration)
     e.resume = validateDocument(resume, true)
     e.coverLetterFile = validateDocument(coverLetterFile, false)
+    if ((resume?.size ?? 0) + (coverLetterFile?.size ?? 0) > resumeRules.maxTotalBytes) e.resume = 'All attachments combined must be under 4 MB.'
     for (const k of Object.keys(e) as (keyof Errors)[]) if (!e[k]) delete e[k]
     return e
   }
 
   async function handleSubmit(ev: FormEvent) {
     ev.preventDefault()
+    if (sending.current) return
     const e = validateAll()
     setErrors(e)
     if (Object.keys(e).length) {
       setStatus('idle')
+      toast('Please check the highlighted fields before submitting.', 'error')
       // Move focus to the first invalid control.
       requestAnimationFrame(() => {
         formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"], .field-error')?.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -155,11 +175,12 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
       return
     }
 
+    sending.current = true
     setStatus('submitting')
     setServerMessage('')
     const fd = new FormData()
     for (const [k, v] of Object.entries(values)) fd.append(k, typeof v === 'boolean' ? String(v) : v.trim())
-    fd.append('website', honeypot) // honeypot — must stay empty
+    fd.append('website', honeypot) // honeypot - must stay empty
     fd.append('startedAt', String(startedAt.current))
     if (resume) fd.append('resume', resume, resume.name)
     if (coverLetterFile) fd.append('coverLetterFile', coverLetterFile, coverLetterFile.name)
@@ -168,21 +189,32 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
       const res = await submitApplication(fd)
       if (res.ok) {
         setReference(res.reference)
+        setDelivery(res.delivery ?? 'accepted')
+        setAcknowledgement(res.acknowledgement ?? 'disabled')
+        toast(res.delivery === 'preview' ? 'Preview saved locally. No email was sent.' : `Application accepted. Reference: ${res.reference}`, 'success')
         setStatus('success')
         window.scrollTo({ top: (document.getElementById('apply')?.offsetTop ?? 0) - 96, behavior: 'smooth' })
       } else {
         setStatus('error')
         setServerMessage(res.error)
+        toast(res.error, 'error')
         if (res.fields) setErrors(res.fields as Errors)
       }
     } catch (err) {
       setStatus(err instanceof ApiUnavailableError ? 'offline' : 'error')
-      if (!(err instanceof ApiUnavailableError)) setServerMessage('Something went wrong while sending your application. Please try again.')
+      const message = err instanceof Error ? err.message : 'The application could not be sent. Your details are still on this page.'
+      setServerMessage(message)
+      toast(message, 'error')
+    } finally {
+      sending.current = false
     }
   }
 
   function reset() {
-    setValues({ ...initial })
+    if (sending.current) return
+    setValues(startingValues)
+    setHoneypot('')
+    setServerMessage('')
     setResume(null)
     setCoverLetterFile(null)
     setErrors({})
@@ -193,20 +225,20 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
 
   if (status === 'success') {
     return (
-      <div className="rounded-3xl border border-success-600/30 bg-success-50 p-8 sm:p-12" role="status" aria-live="polite">
+      <div ref={confirmationRef} tabIndex={-1} className="rounded-3xl border border-success-600/30 bg-success-50 p-8 sm:p-12" role="status" aria-live="polite">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-success-600 text-white" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="m5 12 5 5L19 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
-        <h3 className="mt-6 text-h3 font-semibold text-graphite-900">Application received. Thank you, {values.fullName.split(' ')[0]}.</h3>
+        <h3 className="mt-6 text-h3 font-semibold text-graphite-900">{delivery === 'preview' ? 'Preview saved. No email was sent.' : `Application accepted. Thank you, ${values.fullName.split(' ')[0]}.`}</h3>
         <p className="mt-3 max-w-prose text-body text-ink-700">
           Your {values.applicationType.toLowerCase()} application for <strong>{values.position === otherPositionLabel ? values.positionOther : values.position}</strong> has
-          been delivered to the Nova Ventures careers team. Keep this reference for any follow-up:
+          {delivery === 'preview' ? 'been saved to the local preview outbox.' : 'been accepted by the email service for the Nova Ventures careers team.'} Keep this reference for any follow-up:
         </p>
         <p className="mt-4 inline-block rounded-xl bg-white px-4 py-2 font-mono text-lead font-semibold text-graphite-900">{reference}</p>
         <p className="mt-6 text-small text-ink-500">
-          A copy of this confirmation is sent to {values.email} when acknowledgements are enabled. Questions? Write to{' '}
+          {acknowledgement === 'sent' && delivery !== 'preview' ? `A confirmation was accepted for delivery to ${values.email}.` : 'Keep the reference above for your records.'} For follow-up, write to{' '}
           <a href={`mailto:${company.email}`} className="font-semibold text-ember-700">
             {company.email}
           </a>
@@ -229,13 +261,14 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-6" aria-describedby="apply-required-note">
-      {/* Form header — styled like a Google Form header card, branded for Nova Ventures. */}
+      <fieldset disabled={status === 'submitting'} className="flex min-w-0 flex-col gap-6" aria-busy={status === 'submitting'}>
+      {/* Form header - styled like a Google Form header card, branded for Nova Ventures. */}
       <div className="overflow-hidden rounded-3xl border border-graphite-900/10 bg-white shadow-soft">
         <div className="h-2.5 bg-ember" aria-hidden="true" />
         <div className="px-6 py-7 sm:px-8 sm:py-9">
           <img
             src="/logos/nova-logo-horizontal.png"
-            alt="Nova Ventures — Innovation and Technology"
+            alt="Nova Ventures - Innovation and Technology"
             width={1200}
             height={655}
             className="h-auto w-48 sm:w-56"
@@ -244,7 +277,7 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
           <h3 className="mt-6 text-h3 font-semibold text-graphite-900">Job &amp; Internship Application</h3>
           <p className="mt-3 max-w-prose text-body text-ink-700">
             Apply to any of Nova Ventures’ six businesses. The form takes about five minutes. Your details go
-            directly to the careers team at <span className="font-semibold">{company.email}</span> and are used
+            directly to the Nova Ventures careers team and are used
             only for recruitment (see our{' '}
             <Link to="/privacy" className="font-semibold text-ember-700 underline-offset-4 hover:underline">
               privacy policy
@@ -266,7 +299,8 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
           onChange={(v) => {
             set('applicationType')(v)
             set('availability')('')
-            if (values.position && !positionOptions.some((p) => p.value === values.position)) set('position')('')
+            const selected = openings.find((opening) => opening.title === values.position)
+            if (selected && !selected.type.includes(v)) { set('position')(''); set('vertical')('') }
           }}
           error={errors.applicationType}
           options={[
@@ -280,7 +314,11 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
             name="position"
             required
             value={values.position}
-            onChange={set('position')}
+            onChange={(value) => {
+              set('position')(value)
+              const opening = openings.find((job) => job.title === value)
+              if (opening) set('vertical')(opening.vertical)
+            }}
             error={errors.position}
             options={positionOptions}
             hint="Choose an opening, or “Other” to apply generally."
@@ -331,6 +369,7 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
             value={values.startDate}
             onChange={set('startDate')}
             hint="Optional."
+            error={errors.startDate}
           />
         </div>
       </FormSection>
@@ -368,7 +407,7 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
             error={errors.skills}
             maxLength={limits.skills}
             rows={4}
-            hint="Machines, software, certifications, languages — whatever is relevant to the role."
+            hint="Machines, software, certifications, languages - whatever is relevant to the role."
             className="sm:col-span-2"
           />
         </div>
@@ -427,14 +466,14 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
 
         {status === 'error' && (
           <div className="rounded-xl border border-danger-600/30 bg-danger-50 p-4 text-small text-danger-700" role="alert">
-            {serverMessage || 'Something went wrong. Please check the highlighted fields and try again.'}
+            {serverMessage || 'The application could not be sent. Please check the highlighted fields.'}
           </div>
         )}
-        {status === 'offline' && (
+        {(status === 'offline' || status === 'error') && (
           <div className="rounded-xl border border-ember/50 bg-ember/10 p-4 text-small text-ink-900" role="alert">
-            <p className="font-semibold">The online application service is not reachable right now.</p>
+            <p className="font-semibold">Prefer to send your application by email?</p>
             <p className="mt-1">
-              You can e-mail your application instead — this link opens a message with your details already filled in. Please attach your CV before sending.
+              {serverMessage} You can e-mail your application instead - this link opens a message with your details already filled in. Please attach your CV before sending.
             </p>
             <a href={mailtoFallback} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-graphite-900 px-5 text-small font-semibold text-white hover:bg-ember-700">
               E-mail my application &rarr;
@@ -460,6 +499,7 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
           </Button>
         </div>
       </FormSection>
+      </fieldset>
     </form>
   )
 }

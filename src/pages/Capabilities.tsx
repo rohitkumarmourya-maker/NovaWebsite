@@ -1,4 +1,4 @@
-import { capabilityGroups } from '../data/site'
+import { capabilityGroups } from '../lib/capabilities-data'
 import { CtaBand, PageHero } from '../components/Ui'
 import ScrollReveal from '../components/ScrollReveal'
 import { Seo, breadcrumbJsonLd } from '../lib/head'
@@ -8,11 +8,11 @@ export default function Capabilities() {
     <>
       <Seo
         title="Capabilities"
-        description="Nova Ventures’ engineering, technology and industrial-service capabilities, organised by discipline: CNC machining, CAD/CAM, AI, cloud, cybersecurity, HEMM, hydraulics and more."
+        description="Nova Ventures’ engineering, technology, industrial-service and healthcare-product capabilities, organised by discipline: CNC machining, CAD/CAM, AI, cloud, cybersecurity, HEMM, hydraulics and more."
         path="/capabilities"
         jsonLd={[breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'Capabilities', path: '/capabilities' }])]}
       />
-      <PageHero eyebrow="Capabilities" title="Engineering, technology and industrial services." lead="Capability grouped by discipline, from engineering and technology to industrial services." />
+      <PageHero eyebrow="Capabilities" title="Engineering, technology, industrial services and healthcare products." lead="Four connected disciplines, with practical services and product expertise in each." />
 
       <section className="py-16 sm:py-24">
         <div className="container-nova flex flex-col gap-16 sm:gap-20">

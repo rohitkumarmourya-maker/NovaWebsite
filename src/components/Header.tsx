@@ -271,7 +271,7 @@ export default function Header() {
             ),
           )}
           <Link
-            to="/careers#apply"
+            to="/careers/apply"
             tabIndex={mobileOpen ? 0 : -1}
             className="mt-2 flex min-h-12 items-center text-small font-semibold text-ember-700"
           >

@@ -1,4 +1,4 @@
-import { newsItems } from '../data/site'
+import { newsItems } from '../lib/news-data'
 import { PageHero } from '../components/Ui'
 import { Seo, breadcrumbJsonLd } from '../lib/head'
 
@@ -7,7 +7,7 @@ export default function News() {
     <>
       <Seo
         title="News & Updates"
-        description="News and updates from Nova Ventures Innovation and Technology Private Limited."
+        description="News and updates from Nova Ventures Innovation and Technology."
         path="/news"
         jsonLd={[breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'News & Updates', path: '/news' }])]}
       />
@@ -25,7 +25,7 @@ export default function News() {
           ) : (
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {newsItems.map((item) => (
-                <article key={item.title} className="border-t border-graphite-900/10 pt-6">
+                <article key={item.id} className="border-t border-graphite-900/10 pt-6">
                   <p className="text-eyebrow font-bold uppercase text-ember-700">
                     {item.category} &middot; <time dateTime={item.date}>{item.date}</time>
                   </p>

@@ -13,7 +13,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
+const root = fileURLToPath(new URL('..', import.meta.url))
 const dist = path.join(root, 'dist')
 const ssrDir = path.join(root, 'dist-ssr')
 

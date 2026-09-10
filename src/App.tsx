@@ -9,6 +9,9 @@ import BusinessDetail from './pages/BusinessDetail'
 import Capabilities from './pages/Capabilities'
 import Innovation from './pages/Innovation'
 import Careers from './pages/Careers'
+import Apply from './pages/Apply'
+import TermsOfService from './pages/TermsOfService'
+import { ToastProvider } from './components/Toast'
 import Contact from './pages/Contact'
 import News from './pages/News'
 import Privacy from './pages/Privacy'
@@ -64,7 +67,7 @@ function RouteChange() {
 export default function App() {
   const { pathname } = useLocation()
   return (
-    <div className="flex min-h-screen flex-col">
+    <ToastProvider><div className="flex min-h-screen flex-col">
       <a href="#main" className="skip-link">
         Skip to content
       </a>
@@ -80,14 +83,16 @@ export default function App() {
             <Route path="/capabilities" element={<Capabilities />} />
             <Route path="/innovation" element={<Innovation />} />
             <Route path="/careers" element={<Careers />} />
+            <Route path="/careers/apply" element={<Apply />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/news" element={<News />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </main>
       <Footer />
-    </div>
+    </div></ToastProvider>
   )
 }

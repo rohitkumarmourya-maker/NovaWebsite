@@ -1,3 +1,5 @@
+import businessOrder from '../../shared/business-order.json'
+
 export type Business = {
   id: string
   index: string
@@ -13,7 +15,7 @@ export type Business = {
   ctaLabel: string
 }
 
-export const businesses: Business[] = [
+const businessDetails: Business[] = [
   {
     id: 'manufacturing',
     index: '01',
@@ -210,6 +212,12 @@ export const businesses: Business[] = [
   },
 ]
 
+export const businesses: Business[] = businessOrder.map(({ id, label }, index) => {
+  const detail = businessDetails.find((business) => business.id === id)
+  if (!detail) throw new Error(`Missing business content: ${id}`)
+  return { ...detail, index: String(index + 1).padStart(2, '0'), name: label, shortName: label }
+})
+
 export const getBusiness = (id: string) => businesses.find((b) => b.id === id)
 
 const heroImageByBusiness: Record<string, string> = {
@@ -222,3 +230,15 @@ const heroImageByBusiness: Record<string, string> = {
 }
 
 export const imageIdForBusiness = (id: string) => heroImageByBusiness[id] ?? 'engineering-hero'
+
+
+const detailImageByBusiness: Record<string, string> = {
+  manufacturing: 'engineering-fabrication',
+  'it-software': 'startup-hero',
+  'hemm-heavy-equipment': 'hemm-workshop',
+  'healthcare-products': 'healthcare-quality',
+  'skill-development': 'careers-hero',
+  'civil-construction': 'civil-facility',
+}
+
+export const detailImageIdForBusiness = (id: string) => detailImageByBusiness[id] ?? 'engineering-fabrication'

@@ -6,13 +6,14 @@ import ContactForm from '../components/forms/ContactForm'
 import { Seo, breadcrumbJsonLd } from '../lib/head'
 
 export default function Contact() {
+  const [submitting, setSubmitting] = useState(false)
   const [category, setCategory] = useState(enquiryCategories[0])
 
   return (
     <>
       <Seo
         title="Contact"
-        description="Contact Nova Ventures Innovation and Technology Private Limited for manufacturing, software, training, construction, HEMM and healthcare product enquiries."
+        description="Contact Nova Ventures Innovation and Technology for manufacturing, IT, HEMM, healthcare products, skill development and civil and construction enquiries."
         path="/contact"
         jsonLd={[breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'Contact', path: '/contact' }])]}
       />
@@ -28,6 +29,7 @@ export default function Contact() {
                   key={c}
                   type="button"
                   onClick={() => setCategory(c)}
+                  disabled={submitting}
                   aria-pressed={category === c}
                   className={`min-h-10 rounded-full border px-4 py-2 text-small font-medium transition-colors ${
                     category === c
@@ -60,7 +62,7 @@ export default function Contact() {
               <p className="mt-6 text-eyebrow font-bold uppercase text-ember-700">Looking for a job?</p>
               <p className="mt-2">
                 Applications go through the{' '}
-                <Link to="/careers#apply" className="font-semibold text-graphite-900 underline-offset-4 hover:underline">
+                <Link to="/careers/apply" className="font-semibold text-graphite-900 underline-offset-4 hover:underline">
                   careers form
                 </Link>{' '}
                 so nothing gets lost.
@@ -68,7 +70,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <ContactForm category={category} onCategoryChange={setCategory} />
+          <ContactForm category={category} onCategoryChange={setCategory} onPendingChange={setSubmitting} />
         </div>
       </section>
     </>

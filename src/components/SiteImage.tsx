@@ -8,7 +8,7 @@ type Props = {
   alt?: string
   className?: string
   /**
-   * 'natural' (default) keeps the photograph's own aspect ratio so nothing is ever cropped —
+   * 'natural' keeps the photograph's own aspect ratio so nothing is ever cropped —
    * corner logos and edge details stay visible on every screen size.
    * 'cover' fills a container that has its own aspect ratio (only used where the crop is safe).
    */
@@ -26,7 +26,7 @@ export default function SiteImage({
   id,
   alt,
   className = '',
-  fit = 'natural',
+  fit = 'cover',
   priority = false,
   sizes = '(min-width: 1024px) 50vw, 100vw',
   overlay = true,
@@ -52,10 +52,10 @@ export default function SiteImage({
 
   return (
     <div
-      className={`relative w-full overflow-hidden ${rounded} bg-sand-100 ${fit === 'cover' ? 'h-full' : ''} ${className}`}
+      className={`relative w-full overflow-hidden ${rounded} bg-sand-100 ${fit === 'cover' ? 'aspect-[3/2]' : ''} ${className}`}
       style={style}
     >
-      <picture>
+      <picture className={fit === 'cover' ? 'absolute inset-0 h-full w-full' : ''}>
         <source type="image/webp" srcSet={webpSrcSet(id)} sizes={sizes} />
         <img
           src={variant.fallback}

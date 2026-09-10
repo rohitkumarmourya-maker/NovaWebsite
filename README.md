@@ -1,224 +1,177 @@
-# Nova Ventures — Corporate Website
+# Nova Ventures
 
-Corporate website for **Nova Ventures Innovation and Technology Private Limited** (Chhattisgarh, India).
+Corporate website for Nova Ventures Innovation and Technology. React 19, strict TypeScript, Vite 8, Tailwind CSS, React Router and a shared Express/Nodemailer API. All public routes are prerendered during the build.
 
-React 19 · TypeScript · Vite 8 · Tailwind CSS 3 · React Router 7 — with build-time prerendering for
-search engines, a small Node/Express API that delivers job applications and enquiries to
-`novaventures.nvit@gmail.com`, and a hardened security posture.
+## Setup
 
----
-
-## 1. Quick start
+Use **Node.js 24.x** and npm. Node 24 runs the shared, erasable TypeScript job catalogue in the API without a second compilation pipeline. These commands work from the repository root on macOS, Linux and Windows:
 
 ```bash
-npm install            # installs the site and the API (server/) in one go
-npm run dev            # site on http://localhost:5173  (proxies /api → :8787)
-npm run dev:api        # API on  http://localhost:8787  (run in a second terminal)
-```
-
-Production build and local preview of exactly what will be deployed:
-
-```bash
-npm run build          # → dist/  (typecheck, sitemap/headers, bundle, prerender 16 pages)
-npm run preview        # serves dist/ + API on http://localhost:8787 (mail in dry-run mode)
-```
-
-Requirements: Node.js 20 or newer.
-
----
-
-## 2. What is in the box
-
-| Path | Purpose |
-| --- | --- |
-| `src/` | Website source (pages, components, data). |
-| `src/data/` | **All editable content**: businesses, careers openings, capabilities, contact details, news. |
-| `shared/form-options.json` | Option lists used by *both* the application form and the API validation. |
-| `server/` | Form-to-e-mail API (Express + Nodemailer). Own `package.json`, own `.env`. |
-| `assets/images-source/` | Master photographs (PNG/JPG). Never served directly. |
-| `assets/logos-source/` | Original logo files. |
-| `public/images/`, `public/logos/` | **Generated** web-ready images (`npm run images`). |
-| `public/fonts/` | Self-hosted Inter + Manrope (no Google Fonts request at runtime). |
-| `scripts/` | Build tooling: image pipeline, prerender, hosting-file generator. |
-| `site.config.mjs` | Site URL, API origin, route list, Content-Security-Policy — one place. |
-| `dist/` | Production build (created by `npm run build`). Deploy this. |
-
----
-
-## 3. Before going live — two settings
-
-**a) Site address.** Set `VITE_SITE_URL` (in `.env` or the build environment) to the real domain,
-e.g. `https://www.novaventures.in`, then run `npm run build`. This drives canonical links, the
-sitemap, robots.txt and Open Graph tags. The default `https://www.novaventures.example` is a
-deliberate placeholder.
-
-**b) Mail delivery.** Copy `server/.env.example` to `server/.env` and fill in the Gmail App
-Password (step-by-step instructions are inside the file). Then verify:
-
-```bash
-cd server && npm run test:mail     # sends a sample application e-mail to MAIL_TO
-```
-
----
-
-## 4. Job / internship applications — how they arrive
-
-The Careers page (`/careers#apply`) has a six-step application form (position, personal details,
-education, experience & skills, documents, final details). Cover letter is optional (text and/or
-file); CV is mandatory (PDF/DOC/DOCX ≤ 5 MB).
-
-Each submission becomes **one e-mail** to `novaventures.nvit@gmail.com`:
-
-```
-Subject:     [Nova Careers] Job · Software Engineer · Priya Sharma · NV-20260908-4F7K
-Reply-To:    the candidate (press Reply to answer them directly)
-Body:        branded HTML summary, grouped by section, plus a plain-text copy
-Attachments: NV-20260908-4F7K_Priya-Sharma_Resume.pdf
-             NV-20260908-4F7K_Priya-Sharma_Cover-Letter.pdf
-Headers:     X-Nova-Reference, X-Nova-Form, X-Nova-Type (for Gmail filters/labels)
-```
-
-Contact enquiries follow the same pattern with `[Nova Enquiry] <Category> · <Name> · NQ-…`.
-The candidate receives an automatic confirmation with the same reference number
-(`SEND_ACKNOWLEDGEMENT=true`).
-
-**Suggested Gmail filters:** `subject:"[Nova Careers]"` → label *Careers*;
-`subject:"[Nova Enquiry]"` → label *Enquiries*. Every message is searchable by reference number.
-
-Nothing is stored on the server; attachments stream straight into the e-mail.
-
-### Editing roles and options
-
-Open `shared/form-options.json`:
-
-- `openings` — roles listed on the Careers page and in the form's position dropdown.
-- `verticals`, `qualifications`, `experienceLevels`, `noticePeriods`, `internshipDurations`,
-  `referralSources`, `enquiryCategories` — dropdown contents.
-
-The form and the API read the same file, so the two can never disagree. Restart the API after
-editing.
-
----
-
-## 5. Deployment options
-
-### Option A — single Node server (simplest; Render, Railway, a VPS, cPanel Node app)
-
-```bash
+npm ci
 npm run build
-cd server && cp .env.example .env   # fill in SMTP_*, set SERVE_STATIC=true, TRUST_PROXY=1
-npm start                           # serves dist/ + /api on $PORT
+npm run preview
 ```
 
-Put it behind HTTPS (the host's built-in TLS, Nginx or Cloudflare).
+`npm ci` also installs the API's locked dependencies. Preview serves the build at `http://localhost:8787`, saves test mail in `server/outbox/`, and explicitly reports that no email was sent. Preview mode is prohibited on Vercel and when `NODE_ENV=production`.
 
-### Option B — static host + separate API
+For development, run these in two terminals:
 
-Deploy `dist/` to Netlify / Vercel / Cloudflare Pages / S3 and run `server/` anywhere Node runs.
+```bash
+npm run dev
+```
 
-1. Build the site with the API origin baked in:
-   `VITE_SITE_URL=https://www.novaventures.in VITE_API_BASE=https://api.novaventures.in npm run build`
-2. In `server/.env` set `ALLOWED_ORIGINS=https://www.novaventures.in` and `SERVE_STATIC=false`.
+```bash
+npm run dev:api
+```
 
-Hosting files are generated for you: `dist/_headers` + `dist/_redirects` (Netlify/Cloudflare),
-`vercel.json` (Vercel), `dist/.htaccess` (Apache/cPanel). All carry the security headers.
+The site runs at `http://localhost:5173`; Vite forwards `/api` to port 8787. To use local mail previews in development, copy `server/.env.example` to `server/.env`, set `NODE_ENV=development` and `MAIL_DRY_RUN=true`. Never use real applicant data in local previews. To send mail instead, configure SMTP as below.
 
-### Option C — pure static, no API
+## Gmail SMTP: codekraft.hub@gmail.com
 
-Everything still works: when the API is unreachable the forms show an *"e-mail my application
-instead"* button that opens the visitor's mail app with the details pre-filled (attachments must
-then be added by hand). For a professional experience, run the API.
+1. Sign in to the Google account **codekraft.hub@gmail.com** and enable 2-Step Verification.
+2. Open Google Account > Security > App passwords. Create an app password for the Nova website. If this setting is unavailable, check account restrictions or ask the account administrator. Use an app password, not the normal account password. See [Google's app password instructions](https://support.google.com/accounts/answer/185833).
+3. For local or standalone Node hosting, copy `server/.env.example` to `server/.env`. Its path is resolved relative to the server code, regardless of the shell working directory. On Vercel, configure the same variables in Project Settings > Environment Variables.
+4. Set `SMTP_USER=codekraft.hub@gmail.com`, `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_SECURE=true`, and paste the app password into `SMTP_PASS`. Whitespace in the password is removed. `GMAIL_APP_PASSWORD` is a fallback only when `SMTP_PASS` is empty.
+5. Set `MAIL_TO` to the Nova inbox. The existing project inbox, **novaventures.nvit@gmail.com**, is the default. Set `CAREERS_TO` for a separate careers inbox, such as `careers@novaventures.co.in`, only after confirming that inbox exists. Set `CONTACT_TO` for a separate enquiries inbox.
+6. Set `SITE_URL=https://nova-final-nine.vercel.app` or the actual production domain. Keep `MAIL_DRY_RUN=false` in production. Optionally set `SEND_ACKNOWLEDGEMENT=true` to send applicant confirmations.
+7. Restart the Node server or redeploy Vercel after changes. From the repository root, the following command deliberately sends a sample application email to the configured careers recipient:
 
----
+```bash
+npm --prefix server run test:mail
+```
 
-## 6. Security
+Check both inbox and spam folders and confirm the attachment opens. Do this yourself with the real account credentials; automated tests use a loopback SMTP emulator and do not contact Gmail.
 
-| Layer | Measure |
+The SMTP sender is fixed in code to `Nova Ventures Website <codekraft.hub@gmail.com>`. `MAIL_FROM` cannot override it. Gmail authentication must use that same account. Port 587 is also supported with `SMTP_SECURE=false`; STARTTLS is required. TLS certificate checking remains enabled. See [Nodemailer SMTP configuration](https://nodemailer.com/smtp).
+
+Recipient precedence:
+
+| Message | Precedence, first nonempty value wins |
 | --- | --- |
-| Transport | HSTS (2 years, preload), `upgrade-insecure-requests`, HTTPS redirect in `.htaccess`. |
-| Content-Security-Policy | `default-src 'self'`; scripts, fonts, images and XHR only from the site's own origin (plus the API origin if separate). No third-party scripts anywhere. Delivered as HTTP header and as a `<meta>` fallback. |
-| Headers | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, mic, geolocation… off), COOP/CORP. |
-| Fonts | Self-hosted — no requests to Google, no tracking. |
-| API input | Zod schema validation against the shared option lists, length limits, trimmed strings, HTML-escaped when rendered into e-mail. |
-| Uploads | Extension **and** MIME **and** magic-byte checks (`file-type`), 5 MB cap, two files max, memory-only, never written to disk. |
-| Anti-abuse | Honeypot field, minimum fill time, per-IP rate limits (6 applications/hour, 12 enquiries/hour, 120 requests/15 min), optional Cloudflare Turnstile (`TURNSTILE_SECRET`). |
-| Server | Helmet, `x-powered-by` removed, JSON body limit 32 KB, CORS allow-list, no PII in logs (only reference numbers). |
-| Privacy | `/privacy` page, explicit consent checkboxes on both forms. |
+| Job/internship application | `CAREERS_TO`, `MAIL_TO`, `NOVA_RECIPIENT_EMAIL`, `novaventures.nvit@gmail.com` |
+| Contact enquiry | `CONTACT_TO`, `MAIL_TO`, `NOVA_RECIPIENT_EMAIL`, `novaventures.nvit@gmail.com` |
+| Applicant acknowledgement | The validated applicant address; replies go to the careers recipient |
 
-Run `npm run audit` to check dependencies for known vulnerabilities.
+Recipient variables accept plain email addresses separated by commas. Applicant addresses are used in `Reply-To`, never as the SMTP sender. No credentials belong in a `VITE_` variable, committed file, client bundle or this README.
 
----
+## Vercel deployment
 
-## 7. Design system
+Deploy the **repository root**, not just `dist/`. The root contains both the static site and `api/index.js`.
 
-**Palette — "Graphite & Ember"** (from the approved concept review):
+1. Import the repository into Vercel and select the repository root containing `package.json`. Choose Node.js **24.x** in project settings.
+2. The checked-in `vercel.json` specifies framework `vite`, install command `npm ci`, build command `npm run build` and output directory `dist`.
+3. Set public `VITE_SITE_URL` to the live site URL. Leave `VITE_API_BASE` empty to use the included same-origin functions.
+4. Configure the SMTP and recipient variables above for Production and, if wanted, Preview environments. Keep `SERVE_STATIC=false` on Vercel. Set `TRUST_PROXY=1` for its reverse proxy.
+5. Deploy, then request `/api/health`. It must return JSON identifying `nova-ventures-api`, not an HTML page. This checks API routing, not SMTP availability.
+6. Verify both forms with real credentials. Open `/careers/apply?position=software-engineer` directly and refresh it to verify deep-link hosting and preselection. Also check `/terms-of-service`.
 
-| Token | Hex | Use |
-| --- | --- | --- |
-| `graphite-950` | `#0F161E` | Dark bands, footer |
-| `graphite-900` | `#1B2632` | Headings, primary buttons |
-| `ember` | `#F5A425` | Accent, CTA band, chips, dashes |
-| `ember-700` (burnt amber) | `#B45309` | Accent text on light, hover |
-| `paper` | `#F7F4ED` | Page background |
-| `sand-50` / `sand-100` | `#F4F0E5` / `#EAE3D3` | Alternating bands, wells |
-| `ink-900` / `ink-700` / `ink-500` | `#26231D` / `#3B372C` / `#6D6657` | Text |
+The hosting generator preserves `/api/:path*` routing to the Express function, includes shared data and the email logo in its bundle, and generates explicit rewrites for prerendered pages. The serverless import never calls `listen()`. Function duration is 60 seconds; SMTP operations have bounded timeouts and optional acknowledgements are awaited.
 
-**Type scale — golden ratio.** Sizes follow φ = 1.618 with √φ half-steps
-(12.6 · 16 · 20.4 · 25.9 · 32.9 · 41.9 · 53.3 · 67.8 px) and body copy uses a φ line-height
-(1.618). Display sizes are fluid (`clamp()`) so the same proportions hold from a 360 px phone to a
-1440 px desktop. Tokens: `text-eyebrow`, `text-small`, `text-body`, `text-lead`, `text-h4` … `text-h1`,
-`text-statement` in `tailwind.config.js`.
+**Attachment limit:** 4 MiB (4,194,304 bytes) combined across CV and optional cover letter, with two files maximum. Text fields and multipart framing fit below [Vercel's 4.5 MB request limit](https://vercel.com/docs/functions/limitations#request-body-size). The frontend, API and shared configuration enforce the same limit. To support larger uploads, first introduce direct object-storage uploads or use a hosting design that supports them; increasing the file limit alone will break Vercel submissions.
 
-Fonts: Manrope (display) and Inter (body), variable, latin + latin-ext.
+Rate limits are per API instance: 6 applications/hour, 12 enquiries/hour and 120 API requests/15 minutes per IP. For a horizontally scaled Vercel deployment, configure deployment-level firewall rate limits as well, or replace the in-memory store with a shared store. Do not treat instance limits as a global quota. Tune `TRUST_PROXY` to the actual trusted proxy topology on other hosts.
 
----
+## Standalone or separate API hosting
 
-## 8. Images
+For one Node process, build the site, set `SERVE_STATIC=true` in `server/.env`, configure SMTP, and run:
 
-Every photograph is shown at its **own aspect ratio** (`SiteImage` with `fit="natural"`), so
-nothing is cropped on any screen — including the Nova logos placed in the corners of the pictures.
-The pipeline produces WebP at 480/768/1024/1536 px plus a JPEG fallback, served through
-`<picture>` with `srcset`/`sizes`; the browser downloads only the size it needs. Width and height
-are always set, so the layout never jumps while images load.
+```bash
+npm --prefix server start
+```
 
-To add or replace a photo: drop the master into `assets/images-source/`, run `npm run images`,
-then reference its file name (without extension) as the `id` in `SiteImage`. Add a description in
-`src/data/imageInventory.ts` for good alt text.
+Serve it behind HTTPS. The server provides both prerendered pages and `/api` with real 404 responses. For a separate API origin, set public `VITE_API_BASE` before rebuilding and set API `ALLOWED_ORIGINS` to the exact frontend origin. The generated CSP permits that configured API origin. Run API `npm ci` from `server/` after its lockfile changes. A static-only upload cannot send email without an API.
 
----
+## Add, modify or archive job postings
 
-## 9. SEO
+**Canonical catalogue:** `shared/careers-data.ts`. `src/lib/careers-data.ts` exposes the sorted, strongly typed browser data; `server/src/validate.js` imports the same catalogue. `src/data/careers.ts` is a compatibility re-export. There is no second list of openings to synchronize.
 
-- Every route is **prerendered to static HTML** at build time (`scripts/prerender.mjs`), with its
-  own `<title>`, description, canonical URL, Open Graph / Twitter tags and JSON-LD
-  (Organization, WebSite, BreadcrumbList). Search engines and link previews see real content
-  without executing JavaScript; visitors see content before the bundle loads.
-- `sitemap.xml` and `robots.txt` are generated from the route list in `site.config.mjs`.
-- A real `404.html` with a 404 status (no "soft 404s").
-- Semantic HTML (landmarks, headings, breadcrumbs), skip link, focus management on navigation,
-  visible keyboard focus, `prefers-reduced-motion` respected.
+1. Open `shared/careers-data.ts` and add an object to `jobPostings`. Supply every `Opening` field: `id`, `title`, `vertical`, `type`, `location`, `summary`, `status`.
+2. Use a unique, stable lowercase hyphenated `id`. Titles must also be unique because the form displays and submits them. Choose a typed `vertical` and `type` (`Job`, `Internship`, or `Job / Internship`).
+3. Use `status: 'open'` for a current opening, or `'upcoming'` to accept interest for a future role. The listing visibly labels upcoming positions.
+4. To modify a role, edit its object and preserve its ID so links keep working. Correctly setting `type` also controls whether the form accepts internship or job applications.
+5. To archive, change `status` to `'archived'`. The job disappears from listings and dropdowns, direct application links explain that it is unavailable, and the API rejects its submitted title. Keep the object to retain its history.
+6. Run `npm run check`, restart the local API, and rebuild/redeploy the frontend and API together. The direct link is `/careers/apply?position=<the-job-id>`. Test that link and the general `/careers/apply` route.
 
----
+Edit qualifications, notice periods, durations, referral sources, text limits and upload limits in `shared/form-options.json`. Hiring-process and employer copy lives in `src/lib/careers-data.ts`. The six existing job records came from the supplied project; review their continuing availability before deployment.
 
-## 10. Content notes (unchanged from the original brief)
+## Business order and capabilities
 
-- The Memorandum of Association the copy is based on is a draft; copy describes *scope*, not
-  delivered work.
-- The Sirgitti (Bilaspur) hub is presented as **proposed**.
-- No phone number or street address were supplied — `src/data/site.ts` → `company.phone`,
-  `company.address`, `company.social` render automatically once filled in.
-- `src/data/site.ts` → `newsItems` is empty; add items to populate `/news`.
+`shared/business-order.json` is the single ordering and naming source:
 
----
+1. Manufacturing
+2. IT
+3. HEMM
+4. Healthcare Products
+5. Skill Development
+6. Civil & Construction
 
-## 11. Scripts
+Navigation, homepage cards, explorer, ecosystem, related businesses, forms and hosting routes derive from it. Detailed business copy and hero/gallery image mappings live in `src/data/businesses.ts`. URLs remain compatible with the original project, including `/businesses/it-software` and `/businesses/hemm-heavy-equipment`.
 
-| Command | What it does |
+Both Home and Capabilities use all four entries in `src/lib/capabilities-data.ts`. Add or modify a capability in that module and both views update. The duplicate Explore Our Businesses section now lives on About; the Capability & Opportunity section has been removed. The approved edits remove "Private Limited" designations from the site and Sirgitti from location references. The entity name is Nova Ventures Innovation and Technology across the site and company metadata.
+
+## Leadership profiles
+
+Edit `src/lib/leadership-data.ts`. Two explicitly pending dummy profiles are included at the owner's request. Replace each `fullName`, `designation` and `bio` with approved details. Add a local photo under `public/images/`, set `photo` to its `/images/...` URL, and change `status` to `'published'`. A null photo renders an intentional portrait placeholder. Add more records as needed; the grid is responsive. Pending profiles are never represented as verified named directors.
+
+## News and updates
+
+Edit `src/lib/news-data.ts`; presentation is in `src/pages/News.tsx`.
+
+1. Add a `NewsItem` to `newsEntries` with a stable unique `id`, ISO date (`YYYY-MM-DD`), category, title and excerpt.
+2. Optionally provide an `https://` link to the approved full announcement.
+3. Keep `status: 'draft'` while editing. Set it to `'published'` to display it. Use `'archived'` to remove it while preserving its history.
+4. Run `npm run check` and rebuild/redeploy. Published entries sort newest first and the homepage teaser updates automatically.
+
+No news was supplied, so the published list intentionally stays empty.
+
+## IT case studies: prepared for future publication
+
+`src/lib/case-studies-data.ts` defines the typed schema and three complete **draft, illustrative planning examples**. No Nova client outcomes were supplied. The public IT and Innovation pages therefore show “Our project stories are coming soon.” Draft stories are excluded from the published list and must not be represented as delivered projects.
+
+For each verified project, replace the draft's overview, problem, solution, technology stack, architecture layers and impact metrics. Each impact needs its value, label, measurement basis and `kind: 'measured'`. Fill `evidence` with an approved public description of the measurement source and period; do not put confidential client data into frontend files. Only then set `status: 'published'`. `npm test` rejects published stories lacking evidence or containing target metrics. Keep all unverified records in draft.
+
+The schema was informed by the [CodeKraftHub reference](https://github.com/codekrafthub/codekrafthub.github.io/blob/main/lib/case-studies-data.ts); its client claims and metrics were not copied or attributed to Nova.
+
+## Images and design
+
+`DESIGN.md` documents the existing Graphite & Ember identity. Tailwind tokens remain in `tailwind.config.js`.
+
+Business cards and detail photography use consistent **3:2** containers with `object-cover`; `SiteImage fit="natural"` preserves full artwork where needed. Explorer images use a separate gallery mapping. Civil & Construction and Healthcare Products have distinct header and gallery images. The two new illustrations are self-hosted; provenance and generation prompts are in `docs/ASSETS.md`.
+
+To add an image: place a master PNG/JPG in `assets/images-source/`, add descriptive metadata in `src/data/imageInventory.ts`, then run:
+
+```bash
+npm run images
+npm run build
+```
+
+The pipeline writes responsive WebP variants, JPEG fallbacks and `src/data/imageManifest.ts`. Do not hand-edit the generated manifest. Use local image URLs for leadership photos because the CSP intentionally blocks third-party image hosts.
+
+## Terms and privacy
+
+The new `/terms-of-service` page uses original Nova copy with a numbered structure and responsive table of contents, informed by the supplied [layout reference](https://codekrafthub.in/terms-of-service). The permanent footer link appears alongside Privacy. Terms cover website use; commercial engagements are governed by separate agreements. Privacy describes the codekraft sender, Nova inbox routing and the technical data included in internal emails. Have the company confirm its legal wording and retention practices before publication.
+
+## Validation and troubleshooting
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run audit
+```
+
+`npm run check` runs typecheck, lint, tests and build. Tests use a local SMTP emulator to verify real MIME construction, SMTP acceptance and rejection, sender/envelope/recipients, Reply-To, attachments, acknowledgements, validation, upload limits, bot handling and CORS. No live email is sent by `npm test`.
+
+| Symptom | Check |
 | --- | --- |
-| `npm run dev` / `npm run dev:api` | Local development (site / API). |
-| `npm run build` | Typecheck → hosting files → bundle → prerender. Output in `dist/`. |
-| `npm run preview` | Serve `dist/` with the API in mail dry-run mode (e-mails land in `server/outbox/`). |
-| `npm run images` | Regenerate responsive images, icons and the image manifest. |
-| `npm run hosting` | Regenerate sitemap, robots, `_headers`, `.htaccess`, `vercel.json`. |
-| `npm run lint` / `npm run typecheck` / `npm run audit` | Quality gates. |
-| `cd server && npm run test:mail` | Send a sample application e-mail using `server/.env`. |
+| `/api/health` is HTML or 404 | Deploy the repository root with `api/index.js` and the generated `vercel.json`; a `dist/`-only deployment has no mail service. |
+| Form returns 503 | Verify SMTP app password, exact sender account, SMTP host/port and recipient addresses in the deployment environment. Logs expose diagnostic codes, not credentials. |
+| Browser reports unreachable service | Check `VITE_API_BASE`, CSP, `ALLOWED_ORIGINS`, DNS and deployment routing. Build again after changing public variables. |
+| 413 upload error | Keep all attachments combined under 4 MB. |
+| 422 validation error | Review highlighted fields, file content, supported job type and current catalogue. Renaming a ZIP to DOCX does not make it a valid resume. |
+| 429 | Wait for the rate-limit window, then retry. |
+| Preview success but no email | Preview writes to the local outbox and never delivers mail. Use configured SMTP in production. |
+| Applicant received no acknowledgement | Confirm `SEND_ACKNOWLEDGEMENT=true`; delivery failure of that optional message does not invalidate an accepted application. |
+
+SMTP acceptance is not proof of inbox delivery. The UI confirms the service accepted the message, preserves a reference and keeps data on failures. If a network timeout interrupts an already accepted message, check for a confirmation before retrying; there is no durable idempotency store in this email-only implementation.

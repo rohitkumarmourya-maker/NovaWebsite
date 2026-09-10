@@ -9,6 +9,8 @@
  * so they sort together and never collide.
  */
 import { config } from './config.js'
+import { randomUUID } from 'node:crypto'
+import { fileURLToPath } from 'node:url'
 
 const COLORS = { graphite: '#1B2632', deep: '#0F161E', ember: '#F5A425', amber: '#B45309', paper: '#F7F4ED', sand: '#F4F0E5', ink: '#3B372C', muted: '#6D6657' }
 
@@ -25,10 +27,7 @@ const nl2br = (s) => esc(s).replace(/\r?\n/g, '<br>')
 export function makeReference(prefix = 'NV') {
   const d = new Date()
   const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
-  const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
-  let code = ''
-  for (let i = 0; i < 4; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)]
-  return `${prefix}-${date}-${code}`
+  return `${prefix}-${date}-${randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`
 }
 
 export const safeFileName = (s) =>
@@ -90,7 +89,7 @@ function layout({ title, subtitle, badge, sections, footerNote }) {
     <p style="margin:0;font:400 12px/1.6 Arial,Helvetica,sans-serif;color:${COLORS.muted}">${footerNote}</p>
   </td></tr>
   <tr><td style="background:${COLORS.sand};padding:16px 32px;font:400 11px/1.5 Arial,Helvetica,sans-serif;color:${COLORS.muted}">
-    Nova Ventures Innovation and Technology Private Limited · Chhattisgarh, India · Sent automatically by the website form service.
+    Nova Ventures Innovation and Technology · Chhattisgarh, India · Sent automatically by the website form service.
   </td></tr>
 </table>
 </td></tr></table>
@@ -208,8 +207,8 @@ export function applicationEmail({ data, reference, files, ip }) {
   const text = `NOVA VENTURES — ${data.applicationType.toUpperCase()} APPLICATION\nReference: ${reference}\n\n${plain(sections)}\n\nAttachments: ${attachments.map((a) => a.filename).join(', ') || 'none'}`
 
   return {
-    to: config.mailTo,
-    replyTo: `"${data.fullName.replace(/"/g, '')}" <${data.email}>`,
+    to: config.careersMailTo,
+    replyTo: { name: data.fullName, address: data.email },
     subject,
     html,
     text,
@@ -235,12 +234,13 @@ export function applicationAcknowledgement({ data, reference }) {
       rows: [
         ['1. Screening', 'The relevant Nova Ventures business reviews your profile against current and upcoming needs.'],
         ['2. Conversation', 'If there is a match, we contact you on the phone number or e-mail you provided.'],
-        ['3. Questions', `Quote your reference number and write to ${config.mailTo}.`],
+        ['3. Questions', `Quote your reference number and write to ${config.careersMailTo}.`],
       ],
     },
   ]
   return {
-    to: `"${data.fullName.replace(/"/g, '')}" <${data.email}>`,
+    to: { name: data.fullName, address: data.email },
+    replyTo: config.careersMailTo,
     subject: `We received your ${data.applicationType.toLowerCase()} application — ${reference}`,
     html: layout({
       title: `Thank you, ${esc(data.fullName.split(' ')[0])}. We have your application.`,
@@ -282,8 +282,8 @@ export function enquiryEmail({ data, reference, ip }) {
     { title: 'Additional', rows: [['Consent', 'Yes'], ['Source IP (abuse tracing only)', ip]] },
   ]
   return {
-    to: config.mailTo,
-    replyTo: `"${data.name.replace(/"/g, '')}" <${data.email}>`,
+    to: config.contactMailTo,
+    replyTo: { name: data.name, address: data.email },
     subject: `[Nova Enquiry] ${data.category} · ${data.name} · ${reference}`,
     html: layout({
       title: `${data.category} enquiry`,
@@ -299,5 +299,5 @@ export function enquiryEmail({ data, reference, ip }) {
 }
 
 function logoAttachment() {
-  return { filename: 'nova-logo.png', path: new URL('../assets/nova-logo-email.png', import.meta.url).pathname, cid: 'nova-logo' }
+  return { filename: 'nova-logo.png', path: fileURLToPath(new URL('../assets/nova-logo-email.png', import.meta.url)), cid: 'nova-logo' }
 }

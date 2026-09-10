@@ -7,7 +7,7 @@ const companyLinks = [
   { label: 'Capabilities', to: '/capabilities' },
   { label: 'Innovation', to: '/innovation' },
   { label: 'Careers', to: '/careers' },
-  { label: 'Apply for a job / internship', to: '/careers#apply' },
+  { label: 'Apply for a job / internship', to: '/careers/apply' },
   { label: 'News & Updates', to: '/news' },
   { label: 'Contact', to: '/contact' },
 ]
@@ -22,8 +22,7 @@ export default function Footer() {
             <span className="font-display text-body font-extrabold tracking-tight text-white">NOVA VENTURES</span>
           </Link>
           <p className="mt-5 max-w-sm text-small leading-relaxed">
-            Engineering, technology and enterprise across manufacturing, IT / software, skill development,
-            civil and construction, HEMM, and health care products.
+            Engineering, technology and enterprise across manufacturing, IT, HEMM, healthcare products, skill development, and civil and construction.
           </p>
           <p className="mt-5 text-small">
             <a href={`mailto:${company.email}`} className="text-white underline-offset-4 transition-colors hover:text-ember hover:underline">
@@ -102,6 +101,7 @@ export default function Footer() {
             <Link to="/privacy" className="transition-colors hover:text-white">
               Privacy Policy
             </Link>
+            <Link to="/terms-of-service" className="transition-colors hover:text-white">Terms of Service</Link>
             <Link to="/contact" className="transition-colors hover:text-white">
               Contact
             </Link>

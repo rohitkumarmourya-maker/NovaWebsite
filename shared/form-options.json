@@ -1,13 +1,7 @@
 {
-  "applicationTypes": ["Job", "Internship"],
-  "verticals": [
-    "Manufacturing",
-    "IT / Software",
-    "Skill Development",
-    "Civil and Construction",
-    "HEMM",
-    "Health Care Products",
-    "Corporate / Administration"
+  "applicationTypes": [
+    "Job",
+    "Internship"
   ],
   "qualifications": [
     "ITI / Diploma",
@@ -25,8 +19,19 @@
     "5 - 10 years",
     "More than 10 years"
   ],
-  "noticePeriods": ["Immediately available", "Up to 15 days", "30 days", "60 days", "90 days or more"],
-  "internshipDurations": ["1 - 2 months", "3 months", "6 months", "Flexible"],
+  "noticePeriods": [
+    "Immediately available",
+    "Up to 15 days",
+    "30 days",
+    "60 days",
+    "90 days or more"
+  ],
+  "internshipDurations": [
+    "1 - 2 months",
+    "3 months",
+    "6 months",
+    "Flexible"
+  ],
   "referralSources": [
     "Nova Ventures website",
     "LinkedIn",
@@ -36,71 +41,12 @@
     "Social media",
     "Other"
   ],
-  "enquiryCategories": [
-    "Business Enquiry",
-    "Manufacturing",
-    "IT / Software",
-    "Skill Development",
-    "Civil and Construction",
-    "HEMM",
-    "Health Care Products",
-    "Partnerships"
-  ],
-  "openings": [
-    {
-      "id": "production-engineer",
-      "title": "Production Engineer",
-      "vertical": "Manufacturing",
-      "type": "Job",
-      "location": "Bilaspur, Chhattisgarh",
-      "summary": "Plan and run precision machining and fabrication work with a focus on quality and throughput."
-    },
-    {
-      "id": "software-engineer",
-      "title": "Software Engineer",
-      "vertical": "IT / Software",
-      "type": "Job / Internship",
-      "location": "Bilaspur / Remote",
-      "summary": "Build web, mobile, data and AI-enabled products across the Nova Ventures businesses."
-    },
-    {
-      "id": "skill-development-trainer",
-      "title": "Skill Development Trainer",
-      "vertical": "Skill Development",
-      "type": "Job",
-      "location": "Bilaspur, Chhattisgarh",
-      "summary": "Deliver hands-on technical and vocational training programmes."
-    },
-    {
-      "id": "site-engineer",
-      "title": "Site Engineer",
-      "vertical": "Civil and Construction",
-      "type": "Job",
-      "location": "Chhattisgarh (project sites)",
-      "summary": "Coordinate civil works, site development and infrastructure projects."
-    },
-    {
-      "id": "hemm-service-technician",
-      "title": "HEMM Service Technician",
-      "vertical": "HEMM",
-      "type": "Job",
-      "location": "Bilaspur, Chhattisgarh",
-      "summary": "Diagnose, repair and maintain heavy earth moving machinery and hydraulics."
-    },
-    {
-      "id": "product-development-associate",
-      "title": "Product Development Associate",
-      "vertical": "Health Care Products",
-      "type": "Job / Internship",
-      "location": "Bilaspur, Chhattisgarh",
-      "summary": "Support development, assembly and documentation of healthcare products."
-    }
-  ],
   "otherPositionLabel": "Other / general application",
   "resume": {
-    "maxBytes": 5242880,
+    "maxBytes": 4194304,
+    "maxTotalBytes": 4194304,
     "accept": ".pdf,.doc,.docx",
-    "label": "PDF, DOC or DOCX, up to 5 MB"
+    "label": "PDF, DOC or DOCX. All attachments combined: up to 4 MB."
   },
   "limits": {
     "name": 80,

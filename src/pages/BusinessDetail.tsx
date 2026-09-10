@@ -1,5 +1,6 @@
+import CaseStudies from '../components/CaseStudies'
 import { Link, useParams } from 'react-router-dom'
-import { businesses, getBusiness, imageIdForBusiness } from '../data/businesses'
+import { businesses, getBusiness, imageIdForBusiness, detailImageIdForBusiness } from '../data/businesses'
 import { CTAButton, Eyebrow } from '../components/Ui'
 import SiteImage from '../components/SiteImage'
 import ScrollReveal from '../components/ScrollReveal'
@@ -7,19 +8,13 @@ import Breadcrumbs from '../components/Breadcrumbs'
 import { Seo, breadcrumbJsonLd } from '../lib/head'
 import NotFound from './NotFound'
 
-const galleryImageByBusiness: Record<string, string> = {
-  manufacturing: 'engineering-fabrication',
-  'hemm-heavy-equipment': 'hemm-workshop',
-  'it-software': 'startup-hero',
-}
-
 export default function BusinessDetail() {
   const { id } = useParams()
   const business = getBusiness(id ?? '')
   if (!business) return <NotFound />
 
   const others = businesses.filter((b) => b.id !== business.id).slice(0, 3)
-  const galleryImage = galleryImageByBusiness[business.id] ?? imageIdForBusiness(business.id)
+  const galleryImage = detailImageIdForBusiness(business.id)
   const crumbs = [
     { name: 'Home', path: '/' },
     { name: 'Businesses', path: '/businesses' },
@@ -100,6 +95,8 @@ export default function BusinessDetail() {
           </ul>
         </div>
       </section>
+
+      {business.id === 'it-software' && <CaseStudies />}
 
       <section className="bg-graphite-950 py-16 text-white sm:py-24">
         <div className="container-nova">

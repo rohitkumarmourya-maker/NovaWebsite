@@ -1,0 +1,26 @@
+[
+  {
+    "id": "manufacturing",
+    "label": "Manufacturing"
+  },
+  {
+    "id": "it-software",
+    "label": "IT"
+  },
+  {
+    "id": "hemm-heavy-equipment",
+    "label": "HEMM"
+  },
+  {
+    "id": "healthcare-products",
+    "label": "Healthcare Products"
+  },
+  {
+    "id": "skill-development",
+    "label": "Skill Development"
+  },
+  {
+    "id": "civil-construction",
+    "label": "Civil & Construction"
+  }
+]

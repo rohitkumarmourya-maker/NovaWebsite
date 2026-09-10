@@ -10,7 +10,7 @@ export default function Businesses() {
     <>
       <Seo
         title="Our Businesses"
-        description="Nova Ventures’ six businesses: manufacturing, IT / software, skill development, civil and construction, HEMM, and health care products."
+        description="Nova Ventures’ six businesses: manufacturing, IT, HEMM, healthcare products, skill development, and civil and construction."
         path="/businesses"
         jsonLd={[breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'Businesses', path: '/businesses' }])]}
       />

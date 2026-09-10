@@ -1,3 +1,11 @@
+import { readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
+import { loadEnvFile } from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+const envFile = fileURLToPath(new URL('.env', import.meta.url))
+if (existsSync(envFile)) loadEnvFile(envFile)
+
 /**
  * Single source of truth for deployment-specific values.
  *
@@ -7,16 +15,9 @@
  * Override at build time with environment variables:
  *   VITE_SITE_URL=https://www.novaventures.in  VITE_API_BASE=https://api.novaventures.in  npm run build
  */
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-try {
-  process.loadEnvFile?.(path.resolve(fileURLToPath(new URL('.', import.meta.url)), '.env'))
-} catch {}
-
 const trim = (s) => (s || '').trim().replace(/\/+$/, '')
 
-export const siteUrl = trim(process.env.VITE_SITE_URL) || 'https://www.novaventures.example'
+export const siteUrl = trim(process.env.VITE_SITE_URL) || 'https://nova-final-nine.vercel.app'
 
 /**
  * Where the form API lives. Leave empty when the API is served from the same origin
@@ -26,7 +27,7 @@ export const apiBase = trim(process.env.VITE_API_BASE) || ''
 
 export const company = {
   name: 'Nova Ventures',
-  legalName: 'Nova Ventures Innovation and Technology Private Limited',
+  legalName: 'Nova Ventures Innovation and Technology',
   email: 'novaventures.nvit@gmail.com',
   state: 'Chhattisgarh',
   country: 'India',
@@ -39,20 +40,15 @@ export const staticRoutes = [
   { path: '/businesses', priority: '0.9', changefreq: 'monthly' },
   { path: '/capabilities', priority: '0.7', changefreq: 'monthly' },
   { path: '/innovation', priority: '0.7', changefreq: 'monthly' },
+  { path: '/careers/apply', priority: '0.4', changefreq: 'monthly' },
+  { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
   { path: '/careers', priority: '0.8', changefreq: 'weekly' },
   { path: '/contact', priority: '0.7', changefreq: 'yearly' },
   { path: '/news', priority: '0.6', changefreq: 'weekly' },
   { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
 ]
 
-export const businessIds = [
-  'manufacturing',
-  'it-software',
-  'skill-development',
-  'civil-construction',
-  'hemm-heavy-equipment',
-  'healthcare-products',
-]
+export const businessIds = JSON.parse(readFileSync(new URL('shared/business-order.json', import.meta.url), 'utf8')).map((business) => business.id)
 
 /**
  * Content-Security-Policy. Everything is self-hosted (fonts, images, scripts), so the
@@ -74,7 +70,7 @@ export function buildCsp({ forMeta = false } = {}) {
     "form-action 'self'",
     "manifest-src 'self'",
     "worker-src 'self'",
-    'upgrade-insecure-requests',
+    ...(process.env.NODE_ENV === 'production' ? ['upgrade-insecure-requests'] : []),
   ]
   // frame-ancestors is ignored inside <meta>; it is delivered via HTTP headers instead.
   if (!forMeta) directives.push("frame-ancestors 'none'")

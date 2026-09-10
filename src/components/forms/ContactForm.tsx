@@ -5,12 +5,19 @@ import { company, enquiryCategories } from '../../data/site'
 import { limits } from '../../data/careers'
 import { ApiUnavailableError, submitEnquiry } from '../../lib/api'
 import { validators } from '../../lib/validation'
+import { useToast } from '../../lib/toast'
 import { Button } from '../Ui'
 import { CheckboxField, TextArea, TextField } from './Field'
 
 type Errors = Partial<Record<'name' | 'email' | 'phone' | 'organisation' | 'message' | 'consent', string>>
 
-export default function ContactForm({ category, onCategoryChange }: { category: string; onCategoryChange: (c: string) => void }) {
+export default function ContactForm({ category, onCategoryChange, onPendingChange }: { category: string; onCategoryChange: (c: string) => void; onPendingChange: (pending: boolean) => void }) {
+  const toast = useToast()
+  const sending = useRef(false)
+  const confirmationRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const [submittedCategory, setSubmittedCategory] = useState(category)
+  const [delivery, setDelivery] = useState<'accepted' | 'preview'>('accepted')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -20,6 +27,12 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
   const [honeypot, setHoneypot] = useState('')
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'offline'>('idle')
+  useEffect(() => {
+    if (status === 'success') {
+      confirmationRef.current?.focus({ preventScroll: true })
+      confirmationRef.current?.scrollIntoView({ block: 'center', behavior: 'instant' })
+    }
+  }, [status])
   const [serverMessage, setServerMessage] = useState('')
   const [reference, setReference] = useState('')
   const startedAt = useRef(0)
@@ -42,9 +55,18 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
 
   async function handleSubmit(ev: FormEvent) {
     ev.preventDefault()
+    if (sending.current) return
     const e = validate()
     setErrors(e)
-    if (Object.keys(e).length) return
+    if (Object.keys(e).length) {
+      toast('Please check the highlighted fields before submitting.', 'error')
+      requestAnimationFrame(() => formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus())
+      return
+    }
+    sending.current = true
+    onPendingChange(true)
+    setSubmittedCategory(category)
+    setServerMessage('')
     setStatus('submitting')
     try {
       const res = await submitEnquiry({
@@ -60,14 +82,23 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
       })
       if (res.ok) {
         setReference(res.reference)
+        setDelivery(res.delivery ?? 'accepted')
+        toast(res.delivery === 'preview' ? 'Preview saved locally. No email was sent.' : `Enquiry accepted. Reference: ${res.reference}`, 'success')
         setStatus('success')
       } else {
         setStatus('error')
         setServerMessage(res.error)
+        toast(res.error, 'error')
         if (res.fields) setErrors(res.fields as Errors)
       }
     } catch (err) {
       setStatus(err instanceof ApiUnavailableError ? 'offline' : 'error')
+      const message = err instanceof Error ? err.message : 'The enquiry could not be sent. Your details are still on this page.'
+      setServerMessage(message)
+      toast(message, 'error')
+    } finally {
+      sending.current = false
+      onPendingChange(false)
     }
   }
 
@@ -77,10 +108,10 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
 
   if (status === 'success') {
     return (
-      <div className="rounded-3xl border border-success-600/30 bg-success-50 p-8 sm:p-10" role="status" aria-live="polite">
-        <h3 className="text-h3 font-semibold text-graphite-900">Thank you, {name.split(' ')[0]}. Your enquiry is on its way.</h3>
+      <div ref={confirmationRef} tabIndex={-1} className="rounded-3xl border border-success-600/30 bg-success-50 p-8 sm:p-10" role="status" aria-live="polite">
+        <h3 className="text-h3 font-semibold text-graphite-900">{delivery === 'preview' ? 'Preview saved. No email was sent.' : `Thank you, ${name.split(' ')[0]}. Your enquiry has been accepted.`}</h3>
         <p className="mt-3 max-w-prose text-body text-ink-700">
-          It has been delivered to {company.email} under the category <strong>{category}</strong>. Reference:{' '}
+          {delivery === 'preview' ? 'It has been saved to the local preview outbox' : 'It has been accepted by the email service for the Nova Ventures team'} under the category <strong>{submittedCategory}</strong>. Reference:{' '}
           <span className="font-mono font-semibold text-graphite-900">{reference}</span>
         </p>
         <div className="mt-6">
@@ -88,6 +119,9 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
             variant="ghost"
             onClick={() => {
               setStatus('idle')
+              setErrors({})
+              setHoneypot('')
+              setServerMessage('')
               setName('')
               setEmail('')
               setPhone('')
@@ -105,7 +139,8 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6 rounded-3xl border border-graphite-900/10 bg-white p-6 shadow-soft sm:p-8">
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-6 rounded-3xl border border-graphite-900/10 bg-white p-6 shadow-soft sm:p-8">
+      <fieldset disabled={status === 'submitting'} className="flex min-w-0 flex-col gap-6" aria-busy={status === 'submitting'}>
       <p className="text-small text-ink-500">
         Enquiry type: <span className="font-semibold text-graphite-900">{category}</span>{' '}
         <button type="button" onClick={() => onCategoryChange(enquiryCategories[0])} className="ml-1 text-ember-700 underline-offset-4 hover:underline">
@@ -142,12 +177,12 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
 
       {status === 'error' && (
         <div className="rounded-xl border border-danger-600/30 bg-danger-50 p-4 text-small text-danger-700" role="alert">
-          {serverMessage || 'Something went wrong. Please try again.'}
+          {serverMessage || 'The enquiry could not be sent. Your details are still on this page.'}
         </div>
       )}
-      {status === 'offline' && (
+      {(status === 'offline' || status === 'error') && (
         <div className="rounded-xl border border-ember/50 bg-ember/10 p-4 text-small text-ink-900" role="alert">
-          <p className="font-semibold">The online enquiry service is not reachable right now.</p>
+          <p className="font-semibold">Prefer to send your enquiry by email?</p>
           <a href={mailto} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-graphite-900 px-5 text-small font-semibold text-white hover:bg-ember-700">
             Send by e-mail instead &rarr;
           </a>
@@ -160,6 +195,7 @@ export default function ContactForm({ category, onCategoryChange }: { category: 
           {status === 'submitting' ? 'Sending…' : 'Send enquiry'}
         </Button>
       </div>
+      </fieldset>
     </form>
   )
 }

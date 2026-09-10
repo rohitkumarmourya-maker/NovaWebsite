@@ -24,11 +24,11 @@ export const validators = {
     (patterns.phone.test(v.trim()) && v.replace(/\D/g, '').length >= 8 && v.replace(/\D/g, '').length <= 15
       ? ''
       : 'Enter a valid phone number, e.g. +91 98765 43210.'),
-  city: (v: string) => required(v) || (v.trim().length <= limits.city ? '' : `Keep this under ${limits.city} characters.`),
+  city: (v: string) => required(v) || (v.trim().length < 2 ? 'Enter at least two characters.' : v.trim().length <= limits.city ? '' : `Keep this under ${limits.city} characters.`),
   optionalUrl: (v: string) =>
     !v.trim() ? '' : v.length <= limits.url && patterns.url.test(v.trim()) ? '' : 'Enter a full link starting with https://',
   optionalShort: (v: string) => (v.trim().length <= limits.short ? '' : `Keep this under ${limits.short} characters.`),
-  short: (v: string) => required(v) || (v.trim().length <= limits.short ? '' : `Keep this under ${limits.short} characters.`),
+  short: (v: string) => required(v) || (v.trim().length < 2 ? 'Enter at least two characters.' : v.trim().length <= limits.short ? '' : `Keep this under ${limits.short} characters.`),
   year: (v: string) => {
     if (!v.trim()) return 'This field is required.'
     if (!patterns.year.test(v.trim())) return 'Enter a four-digit year.'
@@ -65,7 +65,7 @@ export function validateDocument(file: File | null, requiredFile: boolean): stri
   if (!['.pdf', '.doc', '.docx'].includes(ext)) return 'Only PDF, DOC or DOCX files are accepted.'
   if (file.type && !resumeRules.mimeTypes.includes(file.type)) return 'Only PDF, DOC or DOCX files are accepted.'
   if (file.size === 0) return 'This file is empty.'
-  if (file.size > resumeRules.maxBytes) return 'The file is larger than 5 MB.'
+  if (file.size > resumeRules.maxBytes) return 'The file is larger than 4 MB.'
   return ''
 }
 

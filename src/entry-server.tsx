@@ -17,6 +17,8 @@ export const prerenderRoutes = [
   '/capabilities',
   '/innovation',
   '/careers',
+  '/careers/apply',
+  '/terms-of-service',
   '/contact',
   '/news',
   '/privacy',

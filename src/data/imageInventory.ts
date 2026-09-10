@@ -11,6 +11,18 @@ export type ImageSpec = {
 
 export const imageInventory: ImageSpec[] = [
   {
+    id: 'civil-facility',
+    purpose: 'Illustration of engineers reviewing a completed industrial facility',
+    description: 'AI-generated architectural illustration of a steel-and-concrete industrial interior with two engineers reviewing drawings. Not a photograph of a Nova facility.',
+    desktopAspectRatio: '3:2', mobileAspectRatio: '3:2', focalPoint: 'Industrial structure and engineering review', mood: 'Professional, warm, precise', placement: 'About explorer and Civil & Construction gallery',
+  },
+  {
+    id: 'healthcare-quality',
+    purpose: 'Illustration of medical equipment on a quality inspection workbench',
+    description: 'AI-generated illustration of an unbranded patient monitor and inspection tools on a laboratory workbench. Not a Nova product or facility photograph.',
+    desktopAspectRatio: '3:2', mobileAspectRatio: '3:2', focalPoint: 'Monitor and cuff on the workbench', mood: 'Clean, precise, calm', placement: 'About explorer and Healthcare Products gallery',
+  },
+  {
     id: 'home-hero',
     purpose: 'Homepage hero backdrop',
     description:

@@ -7,9 +7,14 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
+import { activeOpenings } from '../../shared/careers-data.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const options = JSON.parse(readFileSync(path.resolve(__dirname, '../../shared/form-options.json'), 'utf8'))
+const businessOrder = JSON.parse(readFileSync(new URL('../../shared/business-order.json', import.meta.url), 'utf8'))
+options.openings = activeOpenings
+options.verticals = [...businessOrder.map((b) => b.label), 'Corporate / Administration']
+options.enquiryCategories = ['Business Enquiry', ...businessOrder.map((b) => b.label), 'Partnerships']
 const L = options.limits
 
 const trimmed = (max, min = 0) => z.string().trim().min(min).max(max)
@@ -42,7 +47,7 @@ export const applicationSchema = z
         return d >= 8 && d <= 15
       }, 'Enter a valid phone number'),
     city: trimmed(L.city, 2),
-    linkedin: z.union([z.literal(''), z.string().trim().max(L.url).url()]).optional().default(''),
+    linkedin: z.union([z.literal(''), z.string().trim().max(L.url).url().refine((url) => /^https?:\/\//i.test(url), 'Use an https:// or http:// link')]).optional().default(''),
     qualification: oneOf(options.qualifications),
     institution: trimmed(L.short, 2),
     fieldOfStudy: optional(L.short),
@@ -64,6 +69,13 @@ export const applicationSchema = z
   .superRefine((v, ctx) => {
     if (v.position === options.otherPositionLabel && v.positionOther.length < 2) {
       ctx.addIssue({ code: 'custom', path: ['positionOther'], message: 'Tell us the role you are looking for' })
+    }
+    const selected = activeOpenings.find((opening) => opening.title === v.position)
+    if (selected && (!selected.type.includes(v.applicationType) || selected.vertical !== v.vertical)) {
+      ctx.addIssue({ code: 'custom', path: ['position'], message: 'Choose a role matching the application type and business.' })
+    }
+    if (v.startDate && (Number.isNaN(Date.parse(v.startDate)) || new Date(v.startDate).toISOString().slice(0, 10) !== v.startDate)) {
+      ctx.addIssue({ code: 'custom', path: ['startDate'], message: 'Enter a valid calendar date.' })
     }
     const validAvailability = v.applicationType === 'Internship' ? options.internshipDurations : options.noticePeriods
     if (!validAvailability.includes(v.availability)) {
