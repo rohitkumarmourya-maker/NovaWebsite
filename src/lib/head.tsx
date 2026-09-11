@@ -19,9 +19,9 @@ export type HeadState = {
 }
 
 export const defaultHead: HeadState = {
-  title: 'Engineering. Technology. Possibility.',
+  title: 'Nova Ventures | Engineering. Technology. Possibility.',
   description:
-    'Nova Ventures Innovation and Technology — manufacturing, IT, HEMM, healthcare products, skill development and civil and construction, connected by one engineering mindset.',
+    'Official website of Nova Ventures Innovation and Technology — manufacturing, IT, HEMM, healthcare products, skill development and civil construction, connected by one engineering mindset.',
   path: '/',
 }
 
@@ -33,7 +33,8 @@ export function HeadProvider({ state, children }: { state: Collector; children: 
   return <HeadContext.Provider value={state}>{children}</HeadContext.Provider>
 }
 
-export const fullTitle = (title: string) => `${title} | Nova Ventures`
+export const fullTitle = (title: string) =>
+  title.startsWith('Nova Ventures') ? title : `${title} | Nova Ventures`
 export const absoluteUrl = (path: string) => `${siteUrl}${path === '/' ? '/' : path}`
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {

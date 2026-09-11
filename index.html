@@ -47,21 +47,39 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "Organization",
+          "@type": "Corporation",
           "@id": "%SITE_URL%/#organization",
           "name": "Nova Ventures Innovation and Technology",
-          "alternateName": "Nova Ventures",
+          "alternateName": ["Nova Ventures", "NVIT", "Nova Ventures India"],
           "url": "%SITE_URL%/",
           "logo": "%SITE_URL%/logos/nova-mark.png",
+          "image": "%SITE_URL%/images/og-default.jpg",
           "email": "novaventures.nvit@gmail.com",
-          "address": { "@type": "PostalAddress", "addressRegion": "Chhattisgarh", "addressCountry": "IN" },
-          "knowsAbout": ["Manufacturing", "IT", "Heavy earth moving machinery", "Healthcare products", "Skill development", "Civil construction"]
+          "address": { 
+            "@type": "PostalAddress", 
+            "addressRegion": "Chhattisgarh", 
+            "addressCountry": "IN" 
+          },
+          "areaServed": "IN",
+          "sameAs": [
+            "https://www.novaventures.co.in",
+            "https://novaventures.co.in"
+          ],
+          "knowsAbout": [
+            "Commercial Automotive Manufacturing",
+            "IT Software & Solutions",
+            "Heavy Earth Moving Machinery (HEMM)",
+            "Healthcare Products",
+            "Skill Development",
+            "Civil and Construction Engineering"
+          ]
         },
         {
           "@type": "WebSite",
           "@id": "%SITE_URL%/#website",
           "url": "%SITE_URL%/",
           "name": "Nova Ventures",
+          "alternateName": ["Nova Ventures Official Website", "Nova Ventures Innovation and Technology"],
           "publisher": { "@id": "%SITE_URL%/#organization" },
           "inLanguage": "en-IN"
         }

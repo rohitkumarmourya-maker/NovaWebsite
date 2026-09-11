@@ -12,8 +12,8 @@ export default function Home() {
   return (
     <>
       <Seo
-        title="Engineering. Technology. Possibility."
-        description="Nova Ventures Innovation and Technology — manufacturing, IT, HEMM, healthcare products, skill development and civil and construction, connected by one engineering mindset."
+        title="Nova Ventures | Engineering. Technology. Possibility."
+        description="Official website of Nova Ventures Innovation and Technology — manufacturing, IT, HEMM, healthcare products, skill development and civil construction, connected by one engineering mindset."
         path="/"
       />
 
