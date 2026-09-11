@@ -16,6 +16,13 @@ import Contact from './pages/Contact'
 import News from './pages/News'
 import Privacy from './pages/Privacy'
 import NotFound from './pages/NotFound'
+import { AuthProvider } from './context/AuthContext'
+import AdminLogin from './pages/admin/AdminLogin'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminOverview from './pages/admin/AdminOverview'
+import AdminMessages from './pages/admin/AdminMessages'
+import AdminApplications from './pages/admin/AdminApplications'
+import AdminProjects from './pages/admin/AdminProjects'
 
 /**
  * Scroll + focus management for client-side navigation:
@@ -66,33 +73,52 @@ function RouteChange() {
 
 export default function App() {
   const { pathname } = useLocation()
+  const isAdmin = pathname.startsWith('/admin')
+
   return (
-    <ToastProvider><div className="flex min-h-screen flex-col">
-      <a href="#main" className="skip-link">
-        Skip to content
-      </a>
-      <RouteChange />
-      <Header />
-      <main id="main" tabIndex={-1} className="flex-1 outline-none">
-        <div key={pathname} className="page-enter">
+    <AuthProvider>
+      <ToastProvider>
+        {isAdmin ? (
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/businesses" element={<Businesses />} />
-            <Route path="/businesses/:id" element={<BusinessDetail />} />
-            <Route path="/capabilities" element={<Capabilities />} />
-            <Route path="/innovation" element={<Innovation />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/careers/apply" element={<Apply />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="messages" element={<AdminMessages />} />
+              <Route path="applications" element={<AdminApplications />} />
+              <Route path="projects" element={<AdminProjects />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </div>
-      </main>
-      <Footer />
-    </div></ToastProvider>
+        ) : (
+          <div className="flex min-h-screen flex-col">
+            <a href="#main" className="skip-link">
+              Skip to content
+            </a>
+            <RouteChange />
+            <Header />
+            <main id="main" tabIndex={-1} className="flex-1 outline-none">
+              <div key={pathname} className="page-enter">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/businesses" element={<Businesses />} />
+                  <Route path="/businesses/:id" element={<BusinessDetail />} />
+                  <Route path="/capabilities" element={<Capabilities />} />
+                  <Route path="/innovation" element={<Innovation />} />
+                  <Route path="/careers" element={<Careers />} />
+                  <Route path="/careers/apply" element={<Apply />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/news" element={<News />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </main>
+            <Footer />
+          </div>
+        )}
+      </ToastProvider>
+    </AuthProvider>
   )
 }

@@ -16,6 +16,7 @@ import {
 } from '../../data/careers'
 import { company } from '../../data/site'
 import { ApiUnavailableError, submitApplication } from '../../lib/api'
+import { supabase, isSupabaseConfigured, uploadResumeFile } from '../../lib/supabase'
 import { validateDocument, validators } from '../../lib/validation'
 import { useToast } from '../../lib/toast'
 import { Button } from '../Ui'
@@ -178,27 +179,124 @@ export default function ApplicationForm({ presetPosition }: { presetPosition?: s
     sending.current = true
     setStatus('submitting')
     setServerMessage('')
+
+    // Bot detection - silent fake success
+    if (honeypot) {
+      setReference(`NV-${Math.random().toString(36).slice(2, 10).toUpperCase()}`)
+      setStatus('success')
+      sending.current = false
+      return
+    }
+
     const fd = new FormData()
     for (const [k, v] of Object.entries(values)) fd.append(k, typeof v === 'boolean' ? String(v) : v.trim())
-    fd.append('website', honeypot) // honeypot - must stay empty
+    fd.append('website', honeypot)
     fd.append('startedAt', String(startedAt.current))
     if (resume) fd.append('resume', resume, resume.name)
     if (coverLetterFile) fd.append('coverLetterFile', coverLetterFile, coverLetterFile.name)
 
     try {
-      const res = await submitApplication(fd)
-      if (res.ok) {
-        setReference(res.reference)
-        setDelivery(res.delivery ?? 'accepted')
-        setAcknowledgement(res.acknowledgement ?? 'disabled')
-        toast(res.delivery === 'preview' ? 'Preview saved locally. No email was sent.' : `Application accepted. Reference: ${res.reference}`, 'success')
+      if (isSupabaseConfigured && resume) {
+        // Step 1: Upload resume to private Supabase Storage bucket 'resumes'
+        const uploadResult = await uploadResumeFile(resume)
+        if ('error' in uploadResult) {
+          console.error('[Supabase] Resume upload failed:', uploadResult.error)
+          throw new Error('Unable to upload your CV. Please check your network connection and try again.')
+        }
+
+        const resumePath = uploadResult.path
+        let coverLetterFilePath: string | null = null
+
+        if (coverLetterFile) {
+          const coverUpload = await uploadResumeFile(coverLetterFile)
+          if (!('error' in coverUpload)) {
+            coverLetterFilePath = coverUpload.path
+          }
+        }
+
+        // Step 2: Insert application record into career_applications
+        const positionName = values.position === otherPositionLabel ? values.positionOther : values.position
+        const metadata = {
+          applicationType: values.applicationType,
+          vertical: values.vertical,
+          preferredLocation: values.preferredLocation,
+          availability: values.availability,
+          startDate: values.startDate,
+          city: values.city,
+          linkedin: values.linkedin,
+          qualification: values.qualification,
+          institution: values.institution,
+          fieldOfStudy: values.fieldOfStudy,
+          graduationYear: values.graduationYear,
+          employer: values.employer,
+          currentRole: values.currentRole,
+          referral: values.referral,
+          notes: values.notes,
+          consent: values.consent,
+          declaration: values.declaration,
+          coverLetterFilePath,
+        }
+
+        const ref = `NV-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+
+        const { error: dbError } = await supabase
+          .from('career_applications')
+          .insert({
+            full_name: values.fullName.trim(),
+            email: values.email.trim(),
+            phone: values.phone.trim() || null,
+            position: positionName.trim() || null,
+            experience: values.experience.trim() || null,
+            skills: values.skills.trim() || null,
+            resume_path: resumePath,
+            cover_letter: values.coverLetter.trim() || null,
+            status: 'new',
+            source: 'website',
+            metadata,
+          })
+
+        if (dbError) {
+          console.error('[Supabase] Application insert failed:', dbError)
+          // Cleanup orphaned uploaded file to prevent leakage
+          try {
+            await supabase.storage.from('resumes').remove([resumePath])
+            if (coverLetterFilePath) await supabase.storage.from('resumes').remove([coverLetterFilePath])
+          } catch {
+            // Ignore cleanup errors
+          }
+          throw new Error('We could not save your application. Please check that database tables are created.')
+        }
+
+        setReference(ref)
+        setDelivery('accepted')
+        setAcknowledgement('disabled')
+
+        // Optional server email notification (fail-safe, non-blocking)
+        try {
+          await submitApplication(fd)
+        } catch {
+          // Non-blocking: DB record & file are already saved securely in Supabase
+        }
+
+        toast(`Application accepted. Reference: ${ref}`, 'success')
         setStatus('success')
         window.scrollTo({ top: (document.getElementById('apply')?.offsetTop ?? 0) - 96, behavior: 'smooth' })
       } else {
-        setStatus('error')
-        setServerMessage(res.error)
-        toast(res.error, 'error')
-        if (res.fields) setErrors(res.fields as Errors)
+        // Fallback to existing API route when Supabase keys are not provided
+        const res = await submitApplication(fd)
+        if (res.ok) {
+          setReference(res.reference)
+          setDelivery(res.delivery ?? 'accepted')
+          setAcknowledgement(res.acknowledgement ?? 'disabled')
+          toast(res.delivery === 'preview' ? 'Preview saved locally. No email was sent.' : `Application accepted. Reference: ${res.reference}`, 'success')
+          setStatus('success')
+          window.scrollTo({ top: (document.getElementById('apply')?.offsetTop ?? 0) - 96, behavior: 'smooth' })
+        } else {
+          setStatus('error')
+          setServerMessage(res.error)
+          toast(res.error, 'error')
+          if (res.fields) setErrors(res.fields as Errors)
+        }
       }
     } catch (err) {
       setStatus(err instanceof ApiUnavailableError ? 'offline' : 'error')

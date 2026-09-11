@@ -57,12 +57,12 @@ export const businessIds = JSON.parse(readFileSync(new URL('shared/business-orde
  * attributes and by the reveal/transition helpers; scripts never use it.
  */
 export function buildCsp({ forMeta = false } = {}) {
-  const connect = ["'self'", apiBase].filter(Boolean).join(' ')
+  const connect = ["'self'", apiBase, 'https://hpyfgskyuuhcagncetjt.supabase.co', 'https://*.supabase.co'].filter(Boolean).join(' ')
   const directives = [
     "default-src 'self'",
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://hpyfgskyuuhcagncetjt.supabase.co https://*.supabase.co",
     "font-src 'self'",
     `connect-src ${connect}`,
     "object-src 'none'",

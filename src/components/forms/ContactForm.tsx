@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { company, enquiryCategories } from '../../data/site'
 import { limits } from '../../data/careers'
 import { ApiUnavailableError, submitEnquiry } from '../../lib/api'
+import { supabase, isSupabaseConfigured } from '../../lib/supabase'
 import { validators } from '../../lib/validation'
 import { useToast } from '../../lib/toast'
 import { Button } from '../Ui'
@@ -68,28 +69,84 @@ export default function ContactForm({ category, onCategoryChange, onPendingChang
     setSubmittedCategory(category)
     setServerMessage('')
     setStatus('submitting')
+
+    // Bot detection - silent fake success
+    if (honeypot) {
+      setReference(`NQ-${Math.random().toString(36).slice(2, 10).toUpperCase()}`)
+      setStatus('success')
+      sending.current = false
+      onPendingChange(false)
+      return
+    }
+
     try {
-      const res = await submitEnquiry({
-        category,
-        name: name.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
-        organisation: organisation.trim(),
-        message: message.trim(),
-        consent: String(consent),
-        website: honeypot,
-        startedAt: startedAt.current,
-      })
-      if (res.ok) {
-        setReference(res.reference)
-        setDelivery(res.delivery ?? 'accepted')
-        toast(res.delivery === 'preview' ? 'Preview saved locally. No email was sent.' : `Enquiry accepted. Reference: ${res.reference}`, 'success')
+      if (isSupabaseConfigured) {
+        const ref = `NQ-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+
+        const { error: dbError } = await supabase
+          .from('contact_submissions')
+          .insert({
+            name: name.trim(),
+            email: email.trim(),
+            phone: phone.trim() || null,
+            company: organisation.trim() || null,
+            subject: `[${category}] Enquiry`,
+            message: message.trim(),
+            source: 'website',
+            status: 'new',
+          })
+
+        if (dbError) {
+          console.error('[Supabase] Contact insert error:', dbError)
+          throw new Error('We could not save your enquiry right now. Please check that database tables are created.')
+        }
+
+        setReference(ref)
+        setDelivery('accepted')
+
+        // Optional server email notification (fail-safe, non-blocking)
+        try {
+          await submitEnquiry({
+            category,
+            name: name.trim(),
+            email: email.trim(),
+            phone: phone.trim(),
+            organisation: organisation.trim(),
+            message: message.trim(),
+            consent: String(consent),
+            website: honeypot,
+            startedAt: startedAt.current,
+          })
+        } catch {
+          // Non-blocking: DB record is already saved securely in Supabase
+        }
+
+        toast(`Enquiry accepted. Reference: ${ref}`, 'success')
         setStatus('success')
       } else {
-        setStatus('error')
-        setServerMessage(res.error)
-        toast(res.error, 'error')
-        if (res.fields) setErrors(res.fields as Errors)
+        // Fallback to existing API route when Supabase keys are not provided
+        const res = await submitEnquiry({
+          category,
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          organisation: organisation.trim(),
+          message: message.trim(),
+          consent: String(consent),
+          website: honeypot,
+          startedAt: startedAt.current,
+        })
+        if (res.ok) {
+          setReference(res.reference)
+          setDelivery(res.delivery ?? 'accepted')
+          toast(res.delivery === 'preview' ? 'Preview saved locally. No email was sent.' : `Enquiry accepted. Reference: ${res.reference}`, 'success')
+          setStatus('success')
+        } else {
+          setStatus('error')
+          setServerMessage(res.error)
+          toast(res.error, 'error')
+          if (res.fields) setErrors(res.fields as Errors)
+        }
       }
     } catch (err) {
       setStatus(err instanceof ApiUnavailableError ? 'offline' : 'error')
