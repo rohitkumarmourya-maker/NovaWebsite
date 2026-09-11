@@ -122,6 +122,9 @@ const vercel = {
   rewrites: [
     { source: '/api/:path*', destination: '/api' },
     ...routes.filter((route) => route.path !== '/').map((route) => ({ source: route.path, destination: `${route.path}/index.html` })),
+    { source: '/admin', destination: '/index.html' },
+    { source: '/admin/:path*', destination: '/index.html' },
+    { source: '/(.*)', destination: '/index.html' },
   ],
 }
 
