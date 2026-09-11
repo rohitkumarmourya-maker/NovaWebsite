@@ -22,6 +22,11 @@ export const prerenderRoutes = [
   '/contact',
   '/news',
   '/privacy',
+  '/admin',
+  '/admin/login',
+  '/admin/messages',
+  '/admin/applications',
+  '/admin/projects',
   '/404',
 ]
 

@@ -42,6 +42,7 @@ ${routes
 const robots = `User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /admin/
 
 Sitemap: ${siteUrl}/sitemap.xml
 `
@@ -105,6 +106,14 @@ ${Object.entries(headers)
 </FilesMatch>
 `
 
+const adminRoutes = [
+  '/admin',
+  '/admin/login',
+  '/admin/messages',
+  '/admin/applications',
+  '/admin/projects',
+]
+
 const vercel = {
   $schema: 'https://openapi.vercel.sh/vercel.json',
   framework: 'vite',
@@ -122,7 +131,7 @@ const vercel = {
   rewrites: [
     { source: '/api/:path*', destination: '/api' },
     ...routes.filter((route) => route.path !== '/').map((route) => ({ source: route.path, destination: `${route.path}/index.html` })),
-    { source: '/admin', destination: '/index.html' },
+    ...adminRoutes.map((path) => ({ source: path, destination: `${path}/index.html` })),
     { source: '/admin/:path*', destination: '/index.html' },
     { source: '/(.*)', destination: '/index.html' },
   ],

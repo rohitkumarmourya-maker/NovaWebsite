@@ -144,7 +144,23 @@
     },
     {
       "source": "/admin",
-      "destination": "/index.html"
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/login",
+      "destination": "/admin/login/index.html"
+    },
+    {
+      "source": "/admin/messages",
+      "destination": "/admin/messages/index.html"
+    },
+    {
+      "source": "/admin/applications",
+      "destination": "/admin/applications/index.html"
+    },
+    {
+      "source": "/admin/projects",
+      "destination": "/admin/projects/index.html"
     },
     {
       "source": "/admin/:path*",
