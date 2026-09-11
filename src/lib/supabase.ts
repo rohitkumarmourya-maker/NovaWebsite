@@ -8,7 +8,7 @@ export const SUPABASE_URL = (
 export const SUPABASE_KEY = (
   (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
   (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
-  ''
+  'sb_publishable_kwQg6AogweuOswu3TgrsvQ_S1BgJNQ2'
 ).trim()
 
 // Placeholder token prevents createClient from crashing during build/SSR prerender when env key is not yet set.
