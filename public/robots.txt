@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 
-Sitemap: https://nova-final-nine.vercel.app/sitemap.xml
+Sitemap: https://www.novaventures.co.in/sitemap.xml

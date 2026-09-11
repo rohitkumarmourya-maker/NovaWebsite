@@ -17,7 +17,7 @@ if (existsSync(envFile)) loadEnvFile(envFile)
  */
 const trim = (s) => (s || '').trim().replace(/\/+$/, '')
 
-export const siteUrl = trim(process.env.VITE_SITE_URL) || 'https://nova-final-nine.vercel.app'
+export const siteUrl = trim(process.env.VITE_SITE_URL) || 'https://www.novaventures.co.in'
 
 /**
  * Where the form API lives. Leave empty when the API is served from the same origin
