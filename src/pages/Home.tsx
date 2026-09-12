@@ -24,6 +24,7 @@ export default function Home() {
           <div>
             <Eyebrow>Nova Ventures Innovation and Technology</Eyebrow>
             <h1 className="mt-6 max-w-4xl text-h1 font-bold text-graphite-900">
+              <span className="sr-only">Nova Ventures: </span>
               Engineering.
               <br />
               Technology.
