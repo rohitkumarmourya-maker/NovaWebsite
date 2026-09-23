@@ -28,8 +28,8 @@ const logoOutDir = path.join(root, 'public/logos')
 const manifestPath = path.join(root, 'src/data/imageManifest.ts')
 
 const WIDTHS = [480, 768, 1024, 1536]
-const WEBP_QUALITY = 78
-const JPEG_QUALITY = 82
+const WEBP_QUALITY = 68
+const JPEG_QUALITY = 70
 
 await fs.mkdir(outDir, { recursive: true })
 await fs.mkdir(logoOutDir, { recursive: true })
@@ -49,14 +49,14 @@ for (const file of files) {
     await input
       .clone()
       .resize({ width: w, withoutEnlargement: true })
-      .webp({ quality: WEBP_QUALITY, effort: 5 })
+      .webp({ quality: WEBP_QUALITY, effort: 6 })
       .toFile(path.join(outDir, `${id}-${w}.webp`))
   }
   const largest = Math.max(...widths)
   await input
     .clone()
     .resize({ width: largest, withoutEnlargement: true })
-    .jpeg({ quality: JPEG_QUALITY, mozjpeg: true, progressive: true })
+    .jpeg({ quality: JPEG_QUALITY, mozjpeg: true, progressive: true, trellisQuantisation: true, overshootDeringing: true })
     .toFile(path.join(outDir, `${id}-${largest}.jpg`))
 
   manifest[id] = { width, height, widths, fallback: `/images/${id}-${largest}.jpg` }
@@ -67,7 +67,7 @@ for (const file of files) {
 const og = files.includes('careers-hero.png') ? 'careers-hero.png' : files[0]
 await sharp(path.join(srcDir, og))
   .resize({ width: 1200, height: 630, fit: 'cover', position: 'centre' })
-  .jpeg({ quality: 84, mozjpeg: true })
+  .jpeg({ quality: 74, mozjpeg: true, progressive: true })
   .toFile(path.join(outDir, 'og-default.jpg'))
 console.log('✓ og-default.jpg 1200x630')
 
@@ -75,26 +75,80 @@ console.log('✓ og-default.jpg 1200x630')
 const mark = path.join(logoSrcDir, 'nova-mark.png')
 const horizontal = path.join(logoSrcDir, 'nova-logo-horizontal.png')
 
-await sharp(mark).resize({ width: 512, height: 512, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toFile(path.join(logoOutDir, 'nova-mark.png'))
-await sharp(mark).resize({ width: 512, height: 512, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).webp({ quality: 90 }).toFile(path.join(logoOutDir, 'nova-mark.webp'))
+await sharp(mark)
+  .resize({ width: 512, height: 512, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .png({ compressionLevel: 9, quality: 85, effort: 10, palette: true })
+  .toFile(path.join(logoOutDir, 'nova-mark.png'))
+await sharp(mark)
+  .resize({ width: 512, height: 512, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .webp({ quality: 82, effort: 6 })
+  .toFile(path.join(logoOutDir, 'nova-mark.webp'))
+
 for (const size of [32, 48, 96, 192, 512]) {
   await sharp(mark)
     .resize({ width: size, height: size, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png()
+    .png({ compressionLevel: 9, quality: 85, effort: 10, palette: true })
     .toFile(path.join(logoOutDir, `icon-${size}.png`))
 }
+
+// Google Search requires 48x48 and 96x96 multi-resolution favicon.ico
+const p48 = await sharp(mark).resize({ width: 48, height: 48, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png({ compressionLevel: 9, palette: true }).toBuffer()
+const p96 = await sharp(mark).resize({ width: 96, height: 96, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png({ compressionLevel: 9, palette: true }).toBuffer()
+
+const icoHeader = Buffer.alloc(6)
+icoHeader.writeUInt16LE(0, 0)
+icoHeader.writeUInt16LE(1, 2)
+icoHeader.writeUInt16LE(2, 4)
+
+const dir1 = Buffer.alloc(16)
+dir1.writeUInt8(48, 0)
+dir1.writeUInt8(48, 1)
+dir1.writeUInt8(0, 2)
+dir1.writeUInt8(0, 3)
+dir1.writeUInt16LE(1, 4)
+dir1.writeUInt16LE(32, 6)
+dir1.writeUInt32LE(p48.length, 8)
+const offset1 = 6 + 16 * 2
+dir1.writeUInt32LE(offset1, 12)
+
+const dir2 = Buffer.alloc(16)
+dir2.writeUInt8(96, 0)
+dir2.writeUInt8(96, 1)
+dir2.writeUInt8(0, 2)
+dir2.writeUInt8(0, 3)
+dir2.writeUInt16LE(1, 4)
+dir2.writeUInt16LE(32, 6)
+dir2.writeUInt32LE(p96.length, 8)
+const offset2 = offset1 + p48.length
+dir2.writeUInt32LE(offset2, 12)
+
+const icoBuffer = Buffer.concat([icoHeader, dir1, dir2, p48, p96])
+await fs.writeFile(path.join(root, 'public/favicon.ico'), icoBuffer)
+
 // Apple touch icons must be opaque: paint the mark on a white tile with padding.
 await sharp(mark)
   .resize({ width: 150, height: 150, fit: 'contain', background: '#FFFFFF' })
   .extend({ top: 15, bottom: 15, left: 15, right: 15, background: '#FFFFFF' })
   .flatten({ background: '#FFFFFF' })
-  .png()
+  .png({ compressionLevel: 9, quality: 85, effort: 10, palette: true })
   .toFile(path.join(logoOutDir, 'apple-touch-icon.png'))
-await sharp(horizontal).resize({ width: 1200, withoutEnlargement: true }).png({ compressionLevel: 9 }).toFile(path.join(logoOutDir, 'nova-logo-horizontal.png'))
-await sharp(horizontal).resize({ width: 1200, withoutEnlargement: true }).webp({ quality: 88 }).toFile(path.join(logoOutDir, 'nova-logo-horizontal.webp'))
+
+await sharp(horizontal)
+  .resize({ width: 1200, withoutEnlargement: true })
+  .png({ compressionLevel: 9, quality: 85, effort: 10, palette: true })
+  .toFile(path.join(logoOutDir, 'nova-logo-horizontal.png'))
+
+await sharp(horizontal)
+  .resize({ width: 1200, withoutEnlargement: true })
+  .webp({ quality: 78, effort: 6 })
+  .toFile(path.join(logoOutDir, 'nova-logo-horizontal.webp'))
+
 // Small horizontal logo for e-mail templates (kept under 40 KB).
-await sharp(horizontal).resize({ width: 480 }).png({ compressionLevel: 9, palette: true }).toFile(path.join(logoOutDir, 'nova-logo-email.png'))
-console.log('✓ logos + icons')
+await sharp(horizontal)
+  .resize({ width: 480 })
+  .png({ compressionLevel: 9, palette: true })
+  .toFile(path.join(logoOutDir, 'nova-logo-email.png'))
+console.log('✓ logos + icons + favicon.ico')
 
 const ts = `// AUTO-GENERATED by scripts/optimize-images.mjs — do not edit by hand.
 // Run \`npm run images\` after adding or replacing files in assets/images-source/.
