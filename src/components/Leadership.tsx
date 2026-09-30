@@ -1,32 +1,384 @@
-import { leadershipProfiles } from '../lib/leadership-data'
-import { SectionHeading } from './Ui'
+import { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { executiveLeaders, type ExecutiveLeader } from '../lib/leadership-data'
+import { Eyebrow } from './Ui'
+import { EDITORIAL_EASE } from './motion/MotionPrimitives'
 
 export default function Leadership() {
+  const [selectedLeaderId, setSelectedLeaderId] = useState<string | null>(null)
+  const [hoveredLeaderId, setHoveredLeaderId] = useState<string | null>(null)
+  const prefersReduced = useReducedMotion()
+  const profileRef = useRef<HTMLDivElement>(null)
+
+  const selectedLeader = executiveLeaders.find((l) => l.id === selectedLeaderId) ?? null
+
+  // Close profile on Escape key
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedLeaderId(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  // When a leader is selected, scroll smoothly into view if on mobile/small screen
+  useEffect(() => {
+    if (selectedLeaderId && profileRef.current) {
+      profileRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [selectedLeaderId])
+
   return (
     <section id="leadership" className="scroll-mt-24 bg-sand-50 py-20 sm:py-28">
       <div className="container-nova">
-        <SectionHeading eyebrow="Our people" title="Executive Leadership & Board of Directors" lead={leadershipProfiles.some((profile) => profile.status === 'published') ? 'Meet the people guiding Nova Ventures.' : 'Leadership profiles will be shared here as they are confirmed.'} />
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:max-w-5xl">
-          {leadershipProfiles.map((profile) => (
-            <article key={profile.id} className="overflow-hidden rounded-3xl border border-graphite-900/10 bg-white">
-              <div className="relative flex aspect-[4/3] items-center justify-center bg-graphite-900 text-white/40">
-                {profile.photo ? <img src={profile.photo} alt={profile.fullName} loading="lazy" width={640} height={480} className="absolute inset-0 h-full w-full object-cover" /> : (
-                  <div className="flex flex-col items-center gap-4">
-                    <svg width="88" height="88" viewBox="0 0 88 88" fill="none" aria-hidden="true"><circle cx="44" cy="28" r="14" stroke="currentColor" strokeWidth="2" /><path d="M16 78v-8c0-14 12-25 28-25s28 11 28 25v8" stroke="currentColor" strokeWidth="2" /></svg>
-                    <span className="text-small">Portrait to follow</span>
+        {/* Entrance Heading */}
+        <div className="flex flex-col items-start">
+          <motion.div
+            initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: EDITORIAL_EASE }}
+          >
+            <Eyebrow>Our People</Eyebrow>
+          </motion.div>
+          <div className="mt-5 overflow-hidden">
+            <motion.h2
+              initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
+              whileInView={{ y: '0%', opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
+              className="max-w-3xl text-h2 font-semibold text-graphite-900"
+            >
+              Executive Leadership &amp; Board of Directors
+            </motion.h2>
+          </div>
+          <motion.p
+            initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.75, delay: prefersReduced ? 0 : 0.18, ease: EDITORIAL_EASE }}
+            className="mt-4 max-w-prose text-lead text-ink-700"
+          >
+            Guiding Nova Ventures with an engineering mindset, governance discipline, and a commitment to long-term industrial capability.
+          </motion.p>
+        </div>
+
+        {/* Expanded Executive Profile (Morphing View) */}
+        <AnimatePresence mode="wait">
+          {selectedLeader && (
+            <motion.div
+              ref={profileRef}
+              key={selectedLeader.id}
+              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 25, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ duration: 0.55, ease: EDITORIAL_EASE }}
+              className="mt-12 overflow-hidden rounded-3xl border border-graphite-900/15 bg-white p-6 shadow-lift sm:p-10 lg:p-12"
+              role="region"
+              aria-label={`Executive profile of ${selectedLeader.name}`}
+            >
+              <div className="flex items-center justify-between border-b border-graphite-900/10 pb-5">
+                <span className="font-display text-small font-bold text-ember-700">
+                  EXECUTIVE PROFILE {selectedLeader.number} / 04
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedLeaderId(null)}
+                  className="group inline-flex items-center gap-2 rounded-full border border-graphite-900/15 px-4 py-1.5 text-small font-semibold text-graphite-900 transition-colors hover:border-graphite-900 hover:bg-graphite-900 hover:text-white"
+                  aria-label="Close executive profile"
+                >
+                  <span className="transition-transform duration-300 ease-editorial group-hover:-translate-x-0.5">&larr;</span>
+                  <span>Back to Leadership</span>
+                </button>
+              </div>
+
+              <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+                {/* Large Portrait Presentation */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-graphite-900 text-white/50">
+                  {selectedLeader.photo ? (
+                    <img
+                      src={selectedLeader.photo}
+                      alt={selectedLeader.name}
+                      width={600}
+                      height={800}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center">
+                      <div className="relative mb-6 flex h-24 w-24 items-center justify-center rounded-full border border-white/20 bg-white/5 text-ember">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      </div>
+                      <span className="font-display text-eyebrow font-bold tracking-wide2 text-ember">
+                        {selectedLeader.number}
+                      </span>
+                      <p className="mt-2 text-small text-white/60">Executive Portrait</p>
+                    </div>
+                  )}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-5 left-5 right-5 text-white">
+                    <p className="text-eyebrow font-bold uppercase text-ember">{selectedLeader.role}</p>
+                    <h4 className="mt-1 font-display text-h3 font-semibold text-white">{selectedLeader.name}</h4>
                   </div>
-                )}
+                </div>
+
+                {/* Profile Details */}
+                <div className="flex flex-col justify-center">
+                  <div>
+                    <span className="font-display text-eyebrow font-bold uppercase text-ember-700">
+                      {selectedLeader.role}
+                    </span>
+                    <h3 className="mt-2 text-h2 font-semibold text-graphite-900">{selectedLeader.name}</h3>
+                    <p className="mt-4 text-lead font-medium text-ink-700">{selectedLeader.intro}</p>
+                  </div>
+
+                  <div className="mt-8 border-t border-graphite-900/10 pt-6">
+                    <h4 className="font-display text-eyebrow font-bold uppercase text-graphite-900">About</h4>
+                    <p className="mt-3 text-body leading-relaxed text-ink-700">{selectedLeader.biography}</p>
+                  </div>
+
+                  <div className="mt-8 border-t border-graphite-900/10 pt-6">
+                    <h4 className="font-display text-eyebrow font-bold uppercase text-graphite-900">
+                      Areas of Leadership
+                    </h4>
+                    <ul className="mt-3 flex flex-wrap gap-2.5">
+                      {selectedLeader.leadershipAreas.map((area) => (
+                        <li
+                          key={area}
+                          className="rounded-full border border-graphite-900/15 bg-sand-50 px-4 py-1.5 text-small font-medium text-graphite-900"
+                        >
+                          {area}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {selectedLeader.linkedin && (
+                    <div className="mt-8 pt-2">
+                      <a
+                        href={selectedLeader.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-2 text-small font-semibold text-graphite-900 hover:text-ember-700"
+                      >
+                        <span>Connect on LinkedIn</span>
+                        <span className="transition-transform duration-300 ease-editorial group-hover:translate-x-1" aria-hidden="true">&rarr;</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="p-7 sm:p-8">
-                <p className="text-small font-semibold text-ember-700">{profile.designation}</p>
-                <h3 className="mt-2 text-h3 font-semibold text-graphite-900">{profile.fullName}</h3>
-                <p className="mt-4 text-body text-ink-700">{profile.bio}</p>
-                {profile.status === 'pending' && <p className="mt-5 text-small text-ink-500">Profile coming soon</p>}
-              </div>
-            </article>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 4 Executive Portrait Cards Gallery */}
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {executiveLeaders.map((leader, i) => (
+            <ExecutiveCard
+              key={leader.id}
+              leader={leader}
+              index={i}
+              isSelected={selectedLeaderId === leader.id}
+              isHovered={hoveredLeaderId === leader.id}
+              hasSelection={selectedLeaderId !== null}
+              hasHover={hoveredLeaderId !== null}
+              onSelect={() => setSelectedLeaderId(selectedLeaderId === leader.id ? null : leader.id)}
+              onHoverStart={() => setHoveredLeaderId(leader.id)}
+              onHoverEnd={() => setHoveredLeaderId(null)}
+              prefersReduced={prefersReduced}
+            />
           ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function ExecutiveCard({
+  leader,
+  index,
+  isSelected,
+  isHovered,
+  hasSelection,
+  hasHover,
+  onSelect,
+  onHoverStart,
+  onHoverEnd,
+  prefersReduced,
+}: {
+  leader: ExecutiveLeader
+  index: number
+  isSelected: boolean
+  isHovered: boolean
+  hasSelection: boolean
+  hasHover: boolean
+  onSelect: () => void
+  onHoverStart: () => void
+  onHoverEnd: () => void
+  prefersReduced: boolean | null
+}) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 })
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (prefersReduced || !cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const normX = x / rect.width - 0.5
+    const normY = y / rect.height - 0.5
+
+    // Very subtle tilt: rotateX ±1.2deg, rotateY ±1.8deg
+    setTilt({
+      x: -normY * 2.4,
+      y: normX * 3.2,
+    })
+    setMousePos({
+      x: (x / rect.width) * 100,
+      y: (y / rect.height) * 100,
+    })
+  }
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 })
+    onHoverEnd()
+  }
+
+  // Focus effect: active card has full opacity; other cards gently dim
+  let cardOpacity = 1
+  if (hasSelection) {
+    cardOpacity = isSelected ? 1 : 0.45
+  } else if (hasHover) {
+    cardOpacity = isHovered ? 1 : 0.82
+  }
+
+  return (
+    <motion.div
+      initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 35, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{
+        duration: 0.75,
+        delay: prefersReduced ? 0 : index * 0.1,
+        ease: EDITORIAL_EASE,
+      }}
+      style={{ opacity: cardOpacity }}
+      className="perspective-card transition-opacity duration-300 ease-editorial"
+    >
+      <div
+        ref={cardRef}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isSelected}
+        aria-label={`View profile for ${leader.name}, ${leader.role}`}
+        onClick={onSelect}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSelect()
+          }
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={onHoverStart}
+        onMouseLeave={handleMouseLeave}
+        className={`group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border bg-white transition-all duration-300 ease-editorial focus-visible:ring-2 focus-visible:ring-ember ${
+          isSelected
+            ? 'border-ember shadow-lift ring-1 ring-ember'
+            : isHovered
+              ? 'border-graphite-900/25 shadow-lift'
+              : 'border-graphite-900/10 shadow-soft'
+        }`}
+        style={
+          prefersReduced
+            ? undefined
+            : {
+                transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease',
+              }
+        }
+      >
+        {/* Soft Cursor Spotlight (Ember Accent) */}
+        {!prefersReduced && isHovered && (
+          <div
+            className="pointer-events-none absolute inset-0 z-20 rounded-3xl opacity-100 transition-opacity duration-300"
+            style={{
+              background: `radial-gradient(circle 180px at ${mousePos.x}% ${mousePos.y}%, rgba(245, 164, 37, 0.14), transparent 70%)`,
+            }}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Card Portrait Container */}
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-graphite-950 text-white/40">
+          {leader.photo ? (
+            <img
+              src={leader.photo}
+              alt={leader.name}
+              loading="lazy"
+              width={400}
+              height={500}
+              className="h-full w-full object-cover transition-transform duration-500 ease-editorial group-hover:scale-[1.035]"
+            />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/5 text-ember/80 transition-transform duration-500 ease-editorial group-hover:scale-110">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+              <span className="font-display text-small font-semibold text-white/70">Portrait Confirmed</span>
+              <span className="mt-1 text-eyebrow text-white/40">Official Photo</span>
+            </div>
+          )}
+
+          {/* Director Number Badge */}
+          <div className="absolute left-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-graphite-950/70 backdrop-blur-sm">
+            <span className="font-display text-eyebrow font-bold text-ember">{leader.number}</span>
+          </div>
+
+          {/* Subtle gradient vignette */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/60 via-transparent to-transparent" />
+        </div>
+
+        {/* Card Content */}
+        <div className="flex flex-1 flex-col justify-between p-6">
+          <div>
+            <p className="text-eyebrow font-bold uppercase text-ember-700">{leader.role}</p>
+            <h3 className="mt-1.5 font-display text-h4 font-semibold text-graphite-900 transition-colors duration-300 group-hover:text-ember-700">
+              {leader.name}
+            </h3>
+          </div>
+
+          {/* Hover Affordance + Animated Divider */}
+          <div className="mt-5 border-t border-graphite-900/10 pt-4">
+            <div className="relative mb-2 h-0.5 w-full overflow-hidden">
+              <div
+                className={`h-full bg-ember transition-all duration-300 ease-editorial ${
+                  isHovered || isSelected ? 'w-full' : 'w-0'
+                }`}
+              />
+            </div>
+            <div className="flex items-center justify-between text-small font-semibold text-graphite-900">
+              <span className="text-ink-500 transition-colors group-hover:text-graphite-900">
+                {isSelected ? 'Viewing Profile' : 'Executive Member'}
+              </span>
+              <span
+                className={`inline-flex items-center gap-1.5 text-ember-700 transition-all duration-300 ease-editorial ${
+                  isHovered || isSelected ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'
+                }`}
+                aria-hidden="true"
+              >
+                {isSelected ? 'Close' : 'View Profile'} &rarr;
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   )
 }

@@ -105,12 +105,43 @@ video {
 /* Motion                                                              */
 /* ------------------------------------------------------------------ */
 
+/* Nav link animated underline */
+.nav-link-underline {
+  position: relative;
+}
+.nav-link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background-color: #F5A425;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.nav-link-underline:hover::after,
+.nav-link-underline.active::after {
+  transform: scaleX(1);
+}
+
+/* Living portrait 3D perspective */
+.perspective-card {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
 /* Scroll reveal: content is visible by default (no-JS, crawlers, prerendered HTML).
    Only once JavaScript has booted (html.js) do below-the-fold blocks start hidden. */
 .reveal {
   transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
 html.js .reveal:not(.is-visible) {
   opacity: 0;
@@ -131,7 +162,7 @@ html.js .reveal:not(.is-visible) {
 @keyframes pageIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -157,3 +188,4 @@ html.js .page-enter {
     transform: none;
   }
 }
+

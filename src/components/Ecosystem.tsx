@@ -1,53 +1,135 @@
 import { Link } from 'react-router-dom'
+import { motion, useReducedMotion } from 'motion/react'
 import { businesses } from '../data/businesses'
+import { EDITORIAL_EASE } from './motion/MotionPrimitives'
 
 // Positions around a circle for the desktop diagram, in degrees (0 = top, clockwise)
 const angleStep = 360 / businesses.length
 
 export default function Ecosystem() {
+  const prefersReduced = useReducedMotion()
+
   return (
     <>
       {/* Desktop: radial connected diagram */}
       <div className="relative mx-auto hidden aspect-square w-full max-w-2xl lg:block">
         <svg viewBox="0 0 600 600" className="absolute inset-0 h-full w-full" aria-hidden="true">
-          <circle cx="300" cy="300" r="220" fill="none" stroke="currentColor" strokeWidth="1" className="text-graphite-900/10" strokeDasharray="4 8" />
+          <circle
+            cx="300"
+            cy="300"
+            r="220"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+            className="text-graphite-900/10"
+            strokeDasharray="4 8"
+          />
           {businesses.map((_, i) => {
             const angle = ((angleStep * i - 90) * Math.PI) / 180
             const x = 300 + Math.cos(angle) * 220
             const y = 300 + Math.sin(angle) * 220
+            if (prefersReduced) {
+              return (
+                <line
+                  key={i}
+                  x1="300"
+                  y1="300"
+                  x2={x}
+                  y2={y}
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  className="text-ember/70"
+                />
+              )
+            }
             return (
-              <line key={i} x1="300" y1="300" x2={x} y2={y} stroke="currentColor" strokeWidth="1" className="text-ember/60" />
+              <motion.line
+                key={i}
+                x1="300"
+                y1="300"
+                x2={x}
+                y2={y}
+                stroke="currentColor"
+                strokeWidth="1.25"
+                className="text-ember/70"
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{
+                  duration: 0.85,
+                  delay: 0.2 + i * 0.08,
+                  ease: EDITORIAL_EASE,
+                }}
+              />
             )
           })}
         </svg>
 
-        <div className="absolute left-1/2 top-1/2 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-graphite-900 text-center text-white shadow-lift">
-          <img src="/logos/nova-mark.png" alt="" width={36} height={36} className="mb-1.5 h-9 w-9 object-contain" loading="lazy" />
-          <span className="font-display text-eyebrow font-extrabold leading-tight tracking-wide2">
-            NOVA
-            <br />
-            VENTURES
-          </span>
-        </div>
+        {/* Central Core */}
+        {prefersReduced ? (
+          <div className="absolute left-1/2 top-1/2 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-graphite-900 text-center text-white shadow-lift">
+            <img src="/logos/nova-mark.png" alt="" width={36} height={36} className="mb-1.5 h-9 w-9 object-contain" loading="lazy" />
+            <span className="font-display text-eyebrow font-extrabold leading-tight tracking-wide2">
+              NOVA
+              <br />
+              VENTURES
+            </span>
+          </div>
+        ) : (
+          <motion.div
+            initial={{ scale: 0.88, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.75, ease: EDITORIAL_EASE }}
+            className="absolute left-1/2 top-1/2 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-graphite-900 text-center text-white shadow-lift"
+          >
+            <img src="/logos/nova-mark.png" alt="" width={36} height={36} className="mb-1.5 h-9 w-9 object-contain" loading="lazy" />
+            <span className="font-display text-eyebrow font-extrabold leading-tight tracking-wide2">
+              NOVA
+              <br />
+              VENTURES
+            </span>
+          </motion.div>
+        )}
 
+        {/* Outer Business Satellite Nodes */}
         {businesses.map((b, i) => {
           const angle = ((angleStep * i - 90) * Math.PI) / 180
           const x = 50 + Math.cos(angle) * 36.6
           const y = 50 + Math.sin(angle) * 36.6
-          return (
+          const nodeContent = (
             <Link
-              key={b.id}
               to={`/businesses/${b.id}`}
               className="group absolute flex w-40 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 text-center"
               style={{ left: `${x}%`, top: `${y}%` }}
             >
-              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-graphite-900/15 bg-white font-display text-small font-bold text-graphite-900 shadow-soft transition-all group-hover:border-ember group-hover:bg-ember group-hover:text-graphite-900">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-graphite-900/15 bg-white font-display text-small font-bold text-graphite-900 shadow-soft transition-all duration-300 ease-editorial group-hover:scale-105 group-hover:border-ember group-hover:bg-ember group-hover:text-graphite-900">
                 {b.index}
               </span>
-              <span className="text-eyebrow font-semibold normal-case tracking-normal text-ink-700 group-hover:text-graphite-900">
+              <span className="text-eyebrow font-semibold normal-case tracking-normal text-ink-700 transition-colors duration-300 group-hover:text-graphite-900">
                 {b.shortName}
               </span>
             </Link>
+          )
+
+          if (prefersReduced) {
+            return <div key={b.id}>{nodeContent}</div>
+          }
+
+          return (
+            <motion.div
+              key={b.id}
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{
+                duration: 0.65,
+                delay: 0.5 + i * 0.08,
+                ease: EDITORIAL_EASE,
+              }}
+            >
+              {nodeContent}
+            </motion.div>
           )
         })}
       </div>
@@ -59,16 +141,24 @@ export default function Ecosystem() {
           NOVA VENTURES
         </span>
         <div className="flex w-full flex-col items-center">
-          {businesses.map((b) => (
+          {businesses.map((b, i) => (
             <div key={b.id} className="flex w-full flex-col items-center">
               <span className="h-8 w-px bg-ember/60" aria-hidden="true" />
-              <Link
-                to={`/businesses/${b.id}`}
-                className="flex min-h-12 w-full max-w-xs items-center gap-3 rounded-full border border-graphite-900/15 bg-white px-5 py-3 transition-colors hover:border-ember"
+              <motion.div
+                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, delay: prefersReduced ? 0 : i * 0.07, ease: EDITORIAL_EASE }}
+                className="w-full max-w-xs"
               >
-                <span className="font-display text-eyebrow font-bold text-ember-700">{b.index}</span>
-                <span className="text-small font-semibold text-graphite-900">{b.shortName}</span>
-              </Link>
+                <Link
+                  to={`/businesses/${b.id}`}
+                  className="flex min-h-12 w-full items-center gap-3 rounded-full border border-graphite-900/15 bg-white px-5 py-3 transition-colors duration-300 hover:border-ember active:scale-[0.98]"
+                >
+                  <span className="font-display text-eyebrow font-bold text-ember-700">{b.index}</span>
+                  <span className="text-small font-semibold text-graphite-900">{b.shortName}</span>
+                </Link>
+              </motion.div>
             </div>
           ))}
         </div>

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { motion, useReducedMotion } from 'motion/react'
 import { businesses } from '../data/businesses'
 import { company } from '../data/site'
+import { EDITORIAL_EASE } from './motion/MotionPrimitives'
 
 const companyLinks = [
   { label: 'About', to: '/about' },
@@ -13,10 +15,18 @@ const companyLinks = [
 ]
 
 export default function Footer() {
+  const prefersReduced = useReducedMotion()
+
   return (
     <footer className="bg-graphite-950 text-white/70">
       <div className="container-nova grid grid-cols-1 gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:py-20">
-        <div className="sm:col-span-2 lg:col-span-1">
+        <motion.div
+          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.7, ease: EDITORIAL_EASE }}
+          className="sm:col-span-2 lg:col-span-1"
+        >
           <Link to="/" className="inline-flex items-center gap-2.5">
             <img src="/logos/nova-mark.png" alt="" width={40} height={40} className="h-10 w-10 object-contain" loading="lazy" />
             <span className="font-display text-body font-extrabold tracking-tight text-white">NOVA VENTURES</span>
@@ -40,9 +50,15 @@ export default function Footer() {
               ))}
             </ul>
           )}
-        </div>
+        </motion.div>
 
-        <nav aria-label="Footer: businesses">
+        <motion.nav
+          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.7, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
+          aria-label="Footer: businesses"
+        >
           <p className="text-eyebrow font-bold uppercase text-ember">Businesses</p>
           <ul className="mt-5 space-y-3">
             {businesses.map((b) => (
@@ -53,9 +69,15 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-        </nav>
+        </motion.nav>
 
-        <nav aria-label="Footer: company">
+        <motion.nav
+          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.7, delay: prefersReduced ? 0 : 0.16, ease: EDITORIAL_EASE }}
+          aria-label="Footer: company"
+        >
           <p className="text-eyebrow font-bold uppercase text-ember">Company</p>
           <ul className="mt-5 space-y-3">
             {companyLinks.map((l) => (
@@ -66,9 +88,14 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-        </nav>
+        </motion.nav>
 
-        <div>
+        <motion.div
+          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15 }}
+          transition={{ duration: 0.7, delay: prefersReduced ? 0 : 0.24, ease: EDITORIAL_EASE }}
+        >
           <p className="text-eyebrow font-bold uppercase text-ember">Registered Office</p>
           <address className="mt-5 text-small not-italic leading-relaxed">
             {company.legalName}
@@ -89,7 +116,7 @@ export default function Footer() {
               </>
             )}
           </address>
-        </div>
+        </motion.div>
       </div>
 
       <div className="border-t border-white/10">

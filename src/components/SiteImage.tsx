@@ -1,5 +1,7 @@
+import { motion, useReducedMotion } from 'motion/react'
 import { getImage } from '../data/imageInventory'
 import { imageManifest, webpSrcSet } from '../data/imageManifest'
+import { EDITORIAL_EASE } from './motion/MotionPrimitives'
 
 type Props = {
   /** Image id from assets/images-source (without extension). */
@@ -20,6 +22,8 @@ type Props = {
   /** Subtle darkening gradient at the bottom (photos on light backgrounds). */
   overlay?: boolean
   rounded?: string
+  /** Enables executive clip-path reveal when scrolled into view (default: true for non-priority images). */
+  reveal?: boolean
 }
 
 export default function SiteImage({
@@ -31,7 +35,10 @@ export default function SiteImage({
   sizes = '(min-width: 1024px) 50vw, 100vw',
   overlay = true,
   rounded = 'rounded-2xl',
+  reveal,
 }: Props) {
+  const prefersReduced = useReducedMotion()
+  const shouldReveal = reveal ?? !priority
   const variant = imageManifest[id]
   const spec = getImage(id)
 
@@ -50,7 +57,7 @@ export default function SiteImage({
   const text = alt ?? spec?.purpose ?? 'Nova Ventures'
   const style = fit === 'natural' ? { aspectRatio: `${variant.width} / ${variant.height}` } : undefined
 
-  return (
+  const imageContent = (
     <div
       className={`relative w-full overflow-hidden ${rounded} bg-sand-100 ${fit === 'cover' ? 'aspect-[3/2]' : ''} ${className}`}
       style={style}
@@ -77,4 +84,37 @@ export default function SiteImage({
       )}
     </div>
   )
+
+  if (prefersReduced) {
+    return imageContent
+  }
+
+  if (priority) {
+    return (
+      <motion.div
+        initial={{ scale: 1.05, opacity: 0.95 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 2.5, ease: EDITORIAL_EASE }}
+        className="w-full overflow-hidden rounded-2xl will-change-transform"
+      >
+        {imageContent}
+      </motion.div>
+    )
+  }
+
+  if (shouldReveal) {
+    return (
+      <motion.div
+        initial={{ clipPath: 'inset(0% 40% 0% 40%)', scale: 1.05 }}
+        whileInView={{ clipPath: 'inset(0% 0% 0% 0%)', scale: 1 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 1.05, ease: EDITORIAL_EASE }}
+        className="w-full overflow-hidden rounded-2xl will-change-transform"
+      >
+        {imageContent}
+      </motion.div>
+    )
+  }
+
+  return imageContent
 }

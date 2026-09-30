@@ -1,14 +1,17 @@
 import { Link } from 'react-router-dom'
+import { motion, useReducedMotion } from 'motion/react'
 import { businesses, imageIdForBusiness } from '../data/businesses'
 import { newsItems } from '../lib/news-data'
 import { capabilityGroups } from '../lib/capabilities-data'
 import { ArrowLink, CTAButton, CtaBand, Eyebrow, SectionHeading } from '../components/Ui'
 import SiteImage from '../components/SiteImage'
-import ScrollReveal from '../components/ScrollReveal'
 import Ecosystem from '../components/Ecosystem'
 import { Seo } from '../lib/head'
+import { EDITORIAL_EASE } from '../components/motion/MotionPrimitives'
 
 export default function Home() {
+  const prefersReduced = useReducedMotion()
+
   return (
     <>
       <Seo
@@ -22,24 +25,65 @@ export default function Home() {
         <div className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-ember/15 blur-3xl" aria-hidden="true" />
         <div className="container-nova relative grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16">
           <div>
-            <Eyebrow>Nova Ventures Innovation and Technology</Eyebrow>
+            <motion.div
+              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, ease: EDITORIAL_EASE }}
+            >
+              <Eyebrow>Nova Ventures Innovation and Technology</Eyebrow>
+            </motion.div>
             <h1 className="mt-6 max-w-4xl text-h1 font-bold text-graphite-900">
               <span className="sr-only">Nova Ventures: </span>
-              Engineering.
-              <br />
-              Technology.
-              <br />
-              <span className="text-ember-700">Possibility.</span>
+              <span className="block overflow-hidden">
+                <motion.span
+                  initial={prefersReduced ? { opacity: 1 } : { y: '110%', opacity: 0 }}
+                  animate={{ y: '0%', opacity: 1 }}
+                  transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
+                  className="block"
+                >
+                  Engineering.
+                </motion.span>
+              </span>
+              <span className="block overflow-hidden">
+                <motion.span
+                  initial={prefersReduced ? { opacity: 1 } : { y: '110%', opacity: 0 }}
+                  animate={{ y: '0%', opacity: 1 }}
+                  transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.18, ease: EDITORIAL_EASE }}
+                  className="block"
+                >
+                  Technology.
+                </motion.span>
+              </span>
+              <span className="block overflow-hidden">
+                <motion.span
+                  initial={prefersReduced ? { opacity: 1 } : { y: '110%', opacity: 0 }}
+                  animate={{ y: '0%', opacity: 1 }}
+                  transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.28, ease: EDITORIAL_EASE }}
+                  className="block text-ember-700"
+                >
+                  Possibility.
+                </motion.span>
+              </span>
             </h1>
-            <p className="mt-8 max-w-prose text-lead text-ink-700">
+            <motion.p
+              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.38, ease: EDITORIAL_EASE }}
+              className="mt-8 max-w-prose text-lead text-ink-700"
+            >
               We connect engineering expertise, technology and people to turn ambitious ideas into lasting industrial value.
-            </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            </motion.p>
+            <motion.div
+              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, delay: prefersReduced ? 0 : 0.48, ease: EDITORIAL_EASE }}
+              className="mt-10 flex flex-col gap-4 sm:flex-row"
+            >
               <CTAButton to="/businesses">Explore Our Businesses</CTAButton>
               <CTAButton to="/contact" variant="ghost">
                 Start a Conversation
               </CTAButton>
-            </div>
+            </motion.div>
           </div>
           <SiteImage id="home-hero" priority sizes="(min-width: 1024px) 46vw, 100vw" className="shadow-lift" />
         </div>
@@ -47,22 +91,47 @@ export default function Home() {
 
       {/* 02 Company statement */}
       <section className="py-20 sm:py-28">
-        <ScrollReveal className="container-nova">
+        <div className="container-nova">
           <p className="max-w-5xl font-display text-statement font-semibold text-graphite-900">
-            Building across industries.
-            <br />
-            <span className="text-ember-700">Connected by innovation.</span>
+            <span className="block overflow-hidden">
+              <motion.span
+                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
+                whileInView={{ y: '0%', opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, ease: EDITORIAL_EASE }}
+                className="block"
+              >
+                Building across industries.
+              </motion.span>
+            </span>
+            <span className="block overflow-hidden">
+              <motion.span
+                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
+                whileInView={{ y: '0%', opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.12, ease: EDITORIAL_EASE }}
+                className="block text-ember-700"
+              >
+                Connected by innovation.
+              </motion.span>
+            </span>
           </p>
-        </ScrollReveal>
+        </div>
       </section>
 
       {/* 03 Who we are */}
       <section className="pb-20 sm:pb-28">
         <div className="container-nova grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
-          <ScrollReveal className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1">
             <SiteImage id="who-we-are" fit="natural" sizes="(min-width: 1024px) 48vw, 100vw" />
-          </ScrollReveal>
-          <ScrollReveal delayMs={100} className="order-1 flex flex-col gap-6 lg:order-2">
+          </div>
+          <motion.div
+            initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8, ease: EDITORIAL_EASE }}
+            className="order-1 flex flex-col gap-6 lg:order-2"
+          >
             <Eyebrow>Who We Are</Eyebrow>
             <h2 className="text-h2 font-semibold text-graphite-900">
               Nova Ventures Innovation and Technology brings together six business verticals.
@@ -71,7 +140,7 @@ export default function Home() {
               Manufacturing, IT, HEMM, Healthcare Products, Skill Development, and Civil & Construction — sharing one engineering-led approach to capability, quality and long-term value.
             </p>
             <ArrowLink to="/about">More about Nova Ventures</ArrowLink>
-          </ScrollReveal>
+          </motion.div>
         </div>
       </section>
 
@@ -81,13 +150,23 @@ export default function Home() {
           <SectionHeading eyebrow="Our Business Universe" title="Six businesses. One company." action={<ArrowLink to="/businesses">View all businesses</ArrowLink>} />
           <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {businesses.map((b, i) => (
-              <ScrollReveal key={b.id} delayMs={i * 60}>
-                <Link to={`/businesses/${b.id}`} className="group flex flex-col gap-4 rounded-3xl">
-                  <SiteImage id={imageIdForBusiness(b.id)} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw" />
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+              <motion.div
+                key={b.id}
+                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.12 }}
+                transition={{ duration: 0.75, delay: prefersReduced ? 0 : i * 0.09, ease: EDITORIAL_EASE }}
+              >
+                <Link to={`/businesses/${b.id}`} className="group flex flex-col gap-4 rounded-3xl p-1 transition-transform duration-300 ease-editorial">
+                  <div className="overflow-hidden rounded-2xl">
+                    <div className="transition-transform duration-500 ease-editorial group-hover:scale-[1.03]">
+                      <SiteImage id={imageIdForBusiness(b.id)} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 50vw, 100vw" />
+                    </div>
+                  </div>
+                  <div className="flex items-start justify-between gap-3 pt-2">
+                    <div className="transition-transform duration-300 ease-editorial group-hover:translate-x-1">
                       <span className="font-display text-eyebrow font-bold text-ember-700">{b.index}</span>
-                      <h3 className="mt-1 text-h4 font-semibold text-graphite-900 transition-colors group-hover:text-ember-700">{b.shortName}</h3>
+                      <h3 className="mt-1 text-h4 font-semibold text-graphite-900 transition-colors duration-300 group-hover:text-ember-700">{b.shortName}</h3>
                       <p className="mt-1 text-small text-ink-500">{b.tagline}</p>
                     </div>
                     <svg
@@ -95,14 +174,14 @@ export default function Home() {
                       height="18"
                       viewBox="0 0 18 18"
                       fill="none"
-                      className="mt-1 shrink-0 text-graphite-900 transition-all duration-300 ease-editorial group-hover:translate-x-1 group-hover:text-ember-700"
+                      className="mt-1 shrink-0 text-graphite-900 transition-all duration-300 ease-editorial group-hover:translate-x-1.5 group-hover:text-ember-700"
                       aria-hidden="true"
                     >
                       <path d="M3 9H15M15 9L10 4M15 9L10 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
                 </Link>
-              </ScrollReveal>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -146,11 +225,18 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
-            {capabilityGroups.map((group) => (
-              <div key={group.id} className="rounded-3xl border border-graphite-900/10 bg-white p-5 shadow-soft sm:p-6">
-                <h3 className="text-h4 font-semibold text-graphite-900">{group.title}</h3>
+            {capabilityGroups.map((group, i) => (
+              <motion.div
+                key={group.id}
+                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, x: i % 2 === 0 ? -22 : 22 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.75, delay: prefersReduced ? 0 : Math.floor(i / 2) * 0.12, ease: EDITORIAL_EASE }}
+                className="group rounded-3xl border border-graphite-900/10 bg-white p-5 shadow-soft transition-all duration-300 ease-editorial hover:border-ember/40 sm:p-6"
+              >
+                <h3 className="text-h4 font-semibold text-graphite-900 transition-colors duration-300 group-hover:text-ember-700">{group.title}</h3>
                 <p className="mt-2 text-small text-ink-500">{group.blurb}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -159,7 +245,12 @@ export default function Home() {
       {/* 09 Innovation teaser */}
       <section className="bg-sand-50 py-20 sm:py-28">
         <div className="container-nova grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-20">
-          <div>
+          <motion.div
+            initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8, ease: EDITORIAL_EASE }}
+          >
             <Eyebrow>Innovation</Eyebrow>
             <h2 className="mt-6 text-h2 font-semibold text-graphite-900">Technology that moves beyond the expected.</h2>
             <p className="mt-6 max-w-prose text-body text-ink-700">
@@ -168,7 +259,7 @@ export default function Home() {
             <div className="mt-8">
               <ArrowLink to="/innovation">Explore innovation</ArrowLink>
             </div>
-          </div>
+          </motion.div>
           <SiteImage id="technology-hero" sizes="(min-width: 1024px) 48vw, 100vw" />
         </div>
       </section>
@@ -176,7 +267,12 @@ export default function Home() {
       {/* 11 Future vision */}
       <section className="bg-graphite-950 py-20 text-white sm:py-28">
         <div className="container-nova grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
-          <div>
+          <motion.div
+            initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.85, ease: EDITORIAL_EASE }}
+          >
             <span className="inline-flex items-center gap-2 rounded-full border border-ember/50 px-4 py-1.5 text-eyebrow font-bold uppercase text-ember">Future Vision</span>
             <h2 className="mt-8 max-w-xl text-h2 font-semibold text-white">
               An Integrated Manufacturing, Technology &amp; Skill Development Hub in Bilaspur.
@@ -184,7 +280,7 @@ export default function Home() {
             <p className="mt-6 max-w-prose text-body text-white/70">
               A proposed campus bringing manufacturing, technology and skill development together in one connected environment.
             </p>
-          </div>
+          </motion.div>
           <SiteImage id="future-vision-hub" sizes="(min-width: 1024px) 48vw, 100vw" overlay={false} />
         </div>
       </section>

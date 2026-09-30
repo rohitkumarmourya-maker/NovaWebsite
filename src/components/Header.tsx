@@ -110,8 +110,8 @@ export default function Header() {
                   <div key={link.to} onMouseEnter={openMega} className="relative">
                     <button
                       type="button"
-                      className={`flex min-h-10 items-center gap-1.5 rounded-full px-3 text-small font-medium transition-colors hover:text-ember-700 ${
-                        isBusinessRoute || megaOpen ? 'text-ember-700' : 'text-ink-900'
+                      className={`nav-link-underline flex min-h-10 items-center gap-1.5 rounded-full px-3.5 py-1 text-small font-medium transition-colors hover:text-ember-700 ${
+                        isBusinessRoute || megaOpen ? 'active text-ember-700' : 'text-ink-900'
                       }`}
                       aria-expanded={megaOpen}
                       aria-controls={megaId}
@@ -126,8 +126,8 @@ export default function Header() {
                     key={link.to}
                     to={link.to}
                     className={({ isActive }) =>
-                      `flex min-h-10 items-center rounded-full px-3 text-small font-medium transition-colors hover:text-ember-700 ${
-                        isActive ? 'text-ember-700' : 'text-ink-900'
+                      `nav-link-underline flex min-h-10 items-center rounded-full px-3.5 py-1 text-small font-medium transition-colors hover:text-ember-700 ${
+                        isActive ? 'active text-ember-700' : 'text-ink-900'
                       }`
                     }
                   >
@@ -140,10 +140,10 @@ export default function Header() {
             <div className="hidden lg:block">
               <Link
                 to="/contact"
-                className="inline-flex min-h-10 items-center gap-2 rounded-full bg-graphite-900 px-5 py-2 text-small font-semibold text-white transition-colors duration-300 hover:bg-ember-700"
+                className="group inline-flex min-h-10 items-center gap-2 rounded-full bg-graphite-900 px-5 py-2 text-small font-semibold text-white transition-all duration-300 ease-editorial hover:bg-ember-700 active:scale-[0.98]"
               >
-                Start a Conversation
-                <span aria-hidden="true">&rarr;</span>
+                <span>Start a Conversation</span>
+                <span className="inline-block transition-transform duration-300 ease-editorial group-hover:translate-x-1.5" aria-hidden="true">&rarr;</span>
               </Link>
             </div>
 

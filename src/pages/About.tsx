@@ -1,13 +1,16 @@
+import { Link } from 'react-router-dom'
+import { motion, useReducedMotion } from 'motion/react'
 import BusinessExplorer from '../components/BusinessExplorer'
 import Leadership from '../components/Leadership'
-import { Link } from 'react-router-dom'
 import { pillars, valuesNote } from '../data/site'
 import { CTAButton, Eyebrow, PageHero, SectionHeading } from '../components/Ui'
 import SiteImage from '../components/SiteImage'
-import ScrollReveal from '../components/ScrollReveal'
 import { Seo, breadcrumbJsonLd } from '../lib/head'
+import { EDITORIAL_EASE } from '../components/motion/MotionPrimitives'
 
 export default function About() {
+  const prefersReduced = useReducedMotion()
+
   return (
     <>
       <Seo
@@ -20,16 +23,22 @@ export default function About() {
 
       <section className="py-20 sm:py-28">
         <div className="container-nova grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
-          <ScrollReveal>
+          <div className="order-2 lg:order-1">
             <SiteImage id="who-we-are" fit="natural" sizes="(min-width: 1024px) 48vw, 100vw" />
-          </ScrollReveal>
-          <div className="flex flex-col justify-center gap-6 text-body text-ink-700">
+          </div>
+          <motion.div
+            initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.8, ease: EDITORIAL_EASE }}
+            className="order-1 flex flex-col justify-center gap-6 text-body text-ink-700 lg:order-2"
+          >
             <Eyebrow>Who We Are</Eyebrow>
             <p>
               Nova Ventures Innovation and Technology brings together Manufacturing, IT, HEMM, Healthcare Products, Skill Development, and Civil & Construction.
             </p>
             <p>The businesses share an engineering-led approach focused on practical capability, technology, quality and long-term value.</p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -39,13 +48,35 @@ export default function About() {
           <div className="mt-14"><BusinessExplorer /></div>
         </div>
       </section>
+
       <Leadership />
 
       <section className="bg-sand-50 py-20 sm:py-28">
         <div className="container-nova">
           <Eyebrow>Our Business Philosophy</Eyebrow>
           <p className="mt-6 max-w-4xl font-display text-statement font-semibold text-graphite-900">
-            One engineering mindset, applied across manufacturing, technology, healthcare products, skills and infrastructure.
+            <span className="block overflow-hidden">
+              <motion.span
+                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
+                whileInView={{ y: '0%', opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, ease: EDITORIAL_EASE }}
+                className="block"
+              >
+                One engineering mindset,
+              </motion.span>
+            </span>
+            <span className="block overflow-hidden">
+              <motion.span
+                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
+                whileInView={{ y: '0%', opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.12, ease: EDITORIAL_EASE }}
+                className="block text-ember-700"
+              >
+                applied across manufacturing, technology, healthcare products, skills and infrastructure.
+              </motion.span>
+            </span>
           </p>
         </div>
       </section>
@@ -78,13 +109,19 @@ export default function About() {
           <p className="mt-4 max-w-prose text-small text-ink-500">{valuesNote}</p>
           <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
             {pillars.map((p, i) => (
-              <ScrollReveal key={p.title} delayMs={i * 60}>
-                <div className="border-t border-graphite-900/10 pt-6">
+              <motion.div
+                key={p.title}
+                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.7, delay: prefersReduced ? 0 : i * 0.08, ease: EDITORIAL_EASE }}
+              >
+                <div className="group border-t border-graphite-900/10 pt-6 transition-colors duration-300 hover:border-ember/60">
                   <span className="font-display text-small font-bold text-ember-700">0{i + 1}</span>
-                  <h3 className="mt-3 text-h3 font-semibold text-graphite-900">{p.title}</h3>
+                  <h3 className="mt-3 text-h3 font-semibold text-graphite-900 transition-colors duration-300 group-hover:text-ember-700">{p.title}</h3>
                   <p className="mt-2 text-small text-ink-500">{p.description}</p>
                 </div>
-              </ScrollReveal>
+              </motion.div>
             ))}
           </div>
         </div>

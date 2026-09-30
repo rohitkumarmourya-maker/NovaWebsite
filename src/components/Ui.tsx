@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, useReducedMotion } from 'motion/react'
+import { EDITORIAL_EASE } from './motion/MotionPrimitives'
 
 export function Eyebrow({ children, dark = false }: { children: ReactNode; dark?: boolean }) {
   return (
@@ -20,7 +22,7 @@ const arrow = (
     height="16"
     viewBox="0 0 16 16"
     fill="none"
-    className="shrink-0 transition-transform duration-300 ease-editorial group-hover:translate-x-1"
+    className="shrink-0 transition-transform duration-300 ease-editorial group-hover:translate-x-1.5"
     aria-hidden="true"
   >
     <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -56,7 +58,7 @@ export function ArrowLink({
 type CTAVariant = 'primary' | 'ghost' | 'ghostDark' | 'ember'
 
 const ctaBase =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-small font-semibold transition-all duration-300 ease-editorial focus-visible:outline-offset-4 disabled:cursor-not-allowed disabled:opacity-60'
+  'group inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-small font-semibold transition-all duration-300 ease-editorial focus-visible:outline-offset-4 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60'
 
 const ctaStyles: Record<CTAVariant, string> = {
   primary: 'bg-graphite-900 text-white hover:bg-ember-700 active:bg-ember-800',
@@ -122,6 +124,8 @@ export function PageHero({
   dark?: boolean
   aside?: ReactNode
 }) {
+  const prefersReduced = useReducedMotion()
+
   return (
     <section className={`${dark ? 'bg-graphite-950 text-white' : 'bg-sand-50'} pb-14 pt-28 sm:pb-20 sm:pt-36 lg:pt-40`}>
       <div
@@ -130,10 +134,32 @@ export function PageHero({
         }`}
       >
         <div>
-          <Eyebrow dark={dark}>{eyebrow}</Eyebrow>
-          <h1 className={`mt-6 max-w-4xl text-h1 font-bold ${dark ? 'text-white' : 'text-graphite-900'}`}>{title}</h1>
+          <motion.div
+            initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, ease: EDITORIAL_EASE }}
+          >
+            <Eyebrow dark={dark}>{eyebrow}</Eyebrow>
+          </motion.div>
+          <div className="overflow-hidden">
+            <motion.h1
+              initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
+              animate={{ y: '0%', opacity: 1 }}
+              transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
+              className={`mt-6 max-w-4xl text-h1 font-bold ${dark ? 'text-white' : 'text-graphite-900'}`}
+            >
+              {title}
+            </motion.h1>
+          </div>
           {lead && (
-            <p className={`mt-6 max-w-prose text-lead ${dark ? 'text-white/75' : 'text-ink-700'}`}>{lead}</p>
+            <motion.p
+              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, delay: prefersReduced ? 0 : 0.2, ease: EDITORIAL_EASE }}
+              className={`mt-6 max-w-prose text-lead ${dark ? 'text-white/75' : 'text-ink-700'}`}
+            >
+              {lead}
+            </motion.p>
           )}
           {children}
         </div>
@@ -178,13 +204,31 @@ export function SectionHeading({
 
 /** Final call-to-action band in ember. */
 export function CtaBand({ title, to, label }: { title: ReactNode; to: string; label: string }) {
+  const prefersReduced = useReducedMotion()
+
   return (
     <section className="bg-ember py-16 sm:py-24">
       <div className="container-nova flex flex-col items-start gap-8 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="max-w-xl text-h2 font-semibold text-graphite-900">{title}</h2>
-        <CTAButton to={to} variant="ghost" className="shrink-0">
-          {label}
-        </CTAButton>
+        <motion.h2
+          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 22 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: EDITORIAL_EASE }}
+          className="max-w-xl text-h2 font-semibold text-graphite-900"
+        >
+          {title}
+        </motion.h2>
+        <motion.div
+          initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.75, delay: prefersReduced ? 0 : 0.12, ease: EDITORIAL_EASE }}
+          className="shrink-0"
+        >
+          <CTAButton to={to} variant="ghost">
+            {label}
+          </CTAButton>
+        </motion.div>
       </div>
     </section>
   )
