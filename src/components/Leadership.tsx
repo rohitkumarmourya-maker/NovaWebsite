@@ -101,7 +101,7 @@ export default function Leadership() {
                       alt={selectedLeader.name}
                       width={600}
                       height={800}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover object-top"
                     />
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center">
@@ -114,7 +114,7 @@ export default function Leadership() {
                       <span className="font-display text-eyebrow font-bold tracking-wide2 text-ember">
                         {selectedLeader.number}
                       </span>
-                      <p className="mt-2 text-small text-white/60">Executive Portrait</p>
+                      <p className="mt-2 text-small text-white/60">Board of Directors</p>
                     </div>
                   )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/70 via-transparent to-transparent" />
@@ -136,7 +136,13 @@ export default function Leadership() {
 
                   <div className="mt-8 border-t border-graphite-900/10 pt-6">
                     <h4 className="font-display text-eyebrow font-bold uppercase text-graphite-900">About</h4>
-                    <p className="mt-3 text-body leading-relaxed text-ink-700">{selectedLeader.biography}</p>
+                    <div className="mt-3 space-y-3">
+                      {selectedLeader.biography.split('\n\n').map((paragraph, idx) => (
+                        <p key={idx} className="text-body leading-relaxed text-ink-700">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="mt-8 border-t border-graphite-900/10 pt-6">
@@ -321,7 +327,7 @@ function ExecutiveCard({
               loading="lazy"
               width={400}
               height={500}
-              className="h-full w-full object-cover transition-transform duration-500 ease-editorial group-hover:scale-[1.035]"
+              className="h-full w-full object-cover object-top transition-transform duration-500 ease-editorial group-hover:scale-[1.035]"
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
@@ -331,8 +337,8 @@ function ExecutiveCard({
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
-              <span className="font-display text-small font-semibold text-white/70">Portrait Confirmed</span>
-              <span className="mt-1 text-eyebrow text-white/40">Official Photo</span>
+              <span className="font-display text-small font-semibold text-white/70">Board of Directors</span>
+              <span className="mt-1 text-eyebrow text-white/40">Director</span>
             </div>
           )}
 
@@ -358,14 +364,14 @@ function ExecutiveCard({
           <div className="mt-5 border-t border-graphite-900/10 pt-4">
             <div className="relative mb-2 h-0.5 w-full overflow-hidden">
               <div
-                className={`h-full bg-ember transition-all duration-300 ease-editorial ${
+                 className={`h-full bg-ember transition-all duration-300 ease-editorial ${
                   isHovered || isSelected ? 'w-full' : 'w-0'
                 }`}
               />
             </div>
             <div className="flex items-center justify-between text-small font-semibold text-graphite-900">
               <span className="text-ink-500 transition-colors group-hover:text-graphite-900">
-                {isSelected ? 'Viewing Profile' : 'Executive Member'}
+                {isSelected ? 'Viewing Profile' : leader.status === 'published' ? 'Director' : 'Board Member'}
               </span>
               <span
                 className={`inline-flex items-center gap-1.5 text-ember-700 transition-all duration-300 ease-editorial ${
