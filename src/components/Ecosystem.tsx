@@ -66,22 +66,13 @@ export default function Ecosystem() {
         </svg>
 
         {/* Central Core */}
-        {prefersReduced ? (
-          <div className="absolute left-1/2 top-1/2 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-graphite-900 text-center text-white shadow-lift">
-            <img src="/logos/nova-mark.png" alt="" width={36} height={36} className="mb-1.5 h-9 w-9 object-contain" loading="lazy" />
-            <span className="font-display text-eyebrow font-extrabold leading-tight tracking-wide2">
-              NOVA
-              <br />
-              VENTURES
-            </span>
-          </div>
-        ) : (
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <motion.div
-            initial={{ scale: 0.88, opacity: 0 }}
+            initial={prefersReduced ? { opacity: 1 } : { scale: 0.88, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.75, ease: EDITORIAL_EASE }}
-            className="absolute left-1/2 top-1/2 flex h-36 w-36 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-graphite-900 text-center text-white shadow-lift"
+            className="flex h-36 w-36 flex-col items-center justify-center rounded-full bg-graphite-900 text-center text-white shadow-lift"
           >
             <img src="/logos/nova-mark.png" alt="" width={36} height={36} className="mb-1.5 h-9 w-9 object-contain" loading="lazy" />
             <span className="font-display text-eyebrow font-extrabold leading-tight tracking-wide2">
@@ -90,46 +81,42 @@ export default function Ecosystem() {
               VENTURES
             </span>
           </motion.div>
-        )}
+        </div>
 
         {/* Outer Business Satellite Nodes */}
         {businesses.map((b, i) => {
           const angle = ((angleStep * i - 90) * Math.PI) / 180
           const x = 50 + Math.cos(angle) * 36.6
           const y = 50 + Math.sin(angle) * 36.6
-          const nodeContent = (
-            <Link
-              to={`/businesses/${b.id}`}
-              className="group absolute flex w-40 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 text-center"
+          return (
+            <div
+              key={b.id}
+              className="absolute -translate-x-1/2 -translate-y-1/2"
               style={{ left: `${x}%`, top: `${y}%` }}
             >
-              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-graphite-900/15 bg-white font-display text-small font-bold text-graphite-900 shadow-soft transition-all duration-300 ease-editorial group-hover:scale-105 group-hover:border-ember group-hover:bg-ember group-hover:text-graphite-900">
-                {b.index}
-              </span>
-              <span className="text-eyebrow font-semibold normal-case tracking-normal text-ink-700 transition-colors duration-300 group-hover:text-graphite-900">
-                {b.shortName}
-              </span>
-            </Link>
-          )
-
-          if (prefersReduced) {
-            return <div key={b.id}>{nodeContent}</div>
-          }
-
-          return (
-            <motion.div
-              key={b.id}
-              initial={{ scale: 0.8, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{
-                duration: 0.65,
-                delay: 0.5 + i * 0.08,
-                ease: EDITORIAL_EASE,
-              }}
-            >
-              {nodeContent}
-            </motion.div>
+              <motion.div
+                initial={prefersReduced ? { opacity: 1 } : { scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{
+                  duration: 0.65,
+                  delay: prefersReduced ? 0 : 0.45 + i * 0.08,
+                  ease: EDITORIAL_EASE,
+                }}
+              >
+                <Link
+                  to={`/businesses/${b.id}`}
+                  className="group flex w-40 flex-col items-center gap-2 text-center"
+                >
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full border border-graphite-900/15 bg-white font-display text-small font-bold text-graphite-900 shadow-soft transition-all duration-300 ease-editorial group-hover:scale-105 group-hover:border-ember group-hover:bg-ember group-hover:text-graphite-900">
+                    {b.index}
+                  </span>
+                  <span className="text-eyebrow font-semibold normal-case tracking-normal text-ink-700 transition-colors duration-300 group-hover:text-graphite-900">
+                    {b.shortName}
+                  </span>
+                </Link>
+              </motion.div>
+            </div>
           )
         })}
       </div>
