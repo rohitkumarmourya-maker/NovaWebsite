@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { getImage } from '../data/imageInventory'
 import { imageManifest, webpSrcSet } from '../data/imageManifest'
@@ -35,12 +36,32 @@ export default function SiteImage({
   sizes = '(min-width: 1024px) 50vw, 100vw',
   overlay = true,
   rounded = 'rounded-2xl',
-  reveal,
 }: Props) {
   const prefersReduced = useReducedMotion()
-  const shouldReveal = reveal ?? !priority
+  const isServer = typeof window === 'undefined'
   const variant = imageManifest[id]
   const spec = getImage(id)
+
+  const [isLoaded, setIsLoaded] = useState(isServer)
+  const [isRevealed, setIsRevealed] = useState(isServer)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    // 1. If already complete (e.g. cached), immediately mark revealed
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true)
+      setIsRevealed(true)
+      return
+    }
+
+    // 2. Fail-safe timer: ensure the image is NEVER stuck hidden
+    const timer = setTimeout(() => {
+      setIsLoaded(true)
+      setIsRevealed(true)
+    }, 1200)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   if (!variant) {
     return (
@@ -57,64 +78,75 @@ export default function SiteImage({
   const text = alt ?? spec?.purpose ?? 'Nova Ventures'
   const style = fit === 'natural' ? { aspectRatio: `${variant.width} / ${variant.height}` } : undefined
 
-  const imageContent = (
+  const revealVariants = prefersReduced
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      }
+    : {
+        initial: {
+          clipPath: 'inset(0% 50% 0% 50%)',
+          opacity: 0,
+          scale: 1.05,
+        },
+        animate: {
+          clipPath: 'inset(0% 0% 0% 0%)',
+          opacity: 1,
+          scale: 1,
+        },
+      }
+
+  return (
     <div
       className={`relative w-full overflow-hidden ${rounded} bg-sand-100 ${fit === 'cover' ? 'aspect-[3/2]' : ''} ${className}`}
       style={style}
     >
-      <picture className={fit === 'cover' ? 'absolute inset-0 h-full w-full' : ''}>
-        <source type="image/webp" srcSet={webpSrcSet(id)} sizes={sizes} />
-        <img
-          src={variant.fallback}
-          width={variant.width}
-          height={variant.height}
-          alt={text}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding={priority ? 'sync' : 'async'}
-          fetchPriority={priority ? 'high' : 'auto'}
-          sizes={sizes}
-          className={`h-full w-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
-        />
-      </picture>
-      {overlay && (
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/25 via-transparent to-transparent"
-          aria-hidden="true"
-        />
-      )}
+      <motion.div
+        initial={isServer ? 'animate' : 'initial'}
+        animate={isLoaded ? 'animate' : 'initial'}
+        variants={revealVariants}
+        transition={{
+          duration: prefersReduced ? 0.3 : priority ? 1.05 : 0.95,
+          ease: EDITORIAL_EASE,
+        }}
+        onAnimationComplete={() => setIsRevealed(true)}
+        style={
+          isRevealed
+            ? { clipPath: 'none', transform: 'none', opacity: 1, filter: 'none' }
+            : undefined
+        }
+        className={`absolute inset-0 h-full w-full ${
+          isRevealed ? '' : 'will-change-[clip-path,transform,opacity]'
+        }`}
+      >
+        <picture className="block h-full w-full">
+          <source type="image/webp" srcSet={webpSrcSet(id)} sizes={sizes} />
+          <img
+            ref={imgRef}
+            src={variant.fallback}
+            width={variant.width}
+            height={variant.height}
+            alt={text}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding={priority ? 'sync' : 'async'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            sizes={sizes}
+            onLoad={() => setIsLoaded(true)}
+            onError={() => {
+              setIsLoaded(true)
+              setIsRevealed(true)
+            }}
+            className={`h-full w-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
+          />
+        </picture>
+        {overlay && (
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/25 via-transparent to-transparent"
+            aria-hidden="true"
+          />
+        )}
+      </motion.div>
     </div>
   )
-
-  if (prefersReduced) {
-    return imageContent
-  }
-
-  if (priority) {
-    return (
-      <motion.div
-        initial={{ scale: 1.025, opacity: 0.95 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: EDITORIAL_EASE }}
-        className="w-full overflow-hidden rounded-2xl will-change-transform"
-      >
-        {imageContent}
-      </motion.div>
-    )
-  }
-
-  if (shouldReveal) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.12 }}
-        transition={{ duration: 0.75, ease: EDITORIAL_EASE }}
-        className="w-full overflow-hidden rounded-2xl will-change-transform"
-      >
-        {imageContent}
-      </motion.div>
-    )
-  }
-
-  return imageContent
 }
+

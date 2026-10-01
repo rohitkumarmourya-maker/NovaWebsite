@@ -101,11 +101,12 @@ export default function Leadership() {
                 {/* Large Portrait Presentation */}
                 <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-graphite-900 text-white/50">
                   {selectedLeader.photo ? (
-                    <img
+                    <ExecutivePortrait
                       src={selectedLeader.photo}
                       alt={selectedLeader.name}
                       width={600}
                       height={800}
+                      prefersReduced={prefersReduced}
                       className="h-full w-full object-cover object-top"
                     />
                   ) : (
@@ -315,12 +316,12 @@ function ExecutiveCard({
         {/* Card Portrait Container */}
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-graphite-950 text-white/40">
           {leader.photo ? (
-            <img
+            <ExecutivePortrait
               src={leader.photo}
               alt={leader.name}
-              loading="lazy"
               width={400}
               height={500}
+              prefersReduced={prefersReduced}
               className="h-full w-full object-cover object-top transition-transform duration-500 ease-editorial group-hover:scale-[1.035]"
             />
           ) : (
@@ -382,3 +383,96 @@ function ExecutiveCard({
     </motion.div>
   )
 }
+
+function ExecutivePortrait({
+  src,
+  alt,
+  width,
+  height,
+  className = '',
+  prefersReduced,
+}: {
+  src: string
+  alt: string
+  width: number
+  height: number
+  className?: string
+  prefersReduced: boolean | null
+}) {
+  const isServer = typeof window === 'undefined'
+  const [isLoaded, setIsLoaded] = useState(isServer)
+  const [isRevealed, setIsRevealed] = useState(isServer)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    // 1. If already complete (e.g. cached), immediately mark revealed
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true)
+      setIsRevealed(true)
+      return
+    }
+
+    // 2. Fail-safe timer: ensure portrait is NEVER stuck hidden
+    const timer = setTimeout(() => {
+      setIsLoaded(true)
+      setIsRevealed(true)
+    }, 1200)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  const revealVariants = prefersReduced
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      }
+    : {
+        initial: {
+          clipPath: 'inset(0% 50% 0% 50%)',
+          opacity: 0,
+          scale: 1.05,
+        },
+        animate: {
+          clipPath: 'inset(0% 0% 0% 0%)',
+          opacity: 1,
+          scale: 1,
+        },
+      }
+
+  return (
+    <motion.div
+      initial={isServer ? 'animate' : 'initial'}
+      animate={isLoaded ? 'animate' : 'initial'}
+      variants={revealVariants}
+      transition={{
+        duration: prefersReduced ? 0.3 : 0.95,
+        ease: EDITORIAL_EASE,
+      }}
+      onAnimationComplete={() => setIsRevealed(true)}
+      style={
+        isRevealed
+          ? { clipPath: 'none', transform: 'none', opacity: 1, filter: 'none' }
+          : undefined
+      }
+      className={`absolute inset-0 h-full w-full overflow-hidden ${
+        isRevealed ? '' : 'will-change-[clip-path,transform,opacity]'
+      }`}
+    >
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        loading="lazy"
+        width={width}
+        height={height}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => {
+          setIsLoaded(true)
+          setIsRevealed(true)
+        }}
+        className={className}
+      />
+    </motion.div>
+  )
+}
+
