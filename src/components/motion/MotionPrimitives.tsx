@@ -67,16 +67,16 @@ export function MaskedLines({
   return (
     <div className={className}>
       {lines.map((line, i) => (
-        <span key={i} className="block overflow-hidden">
+        <span key={i} className="block">
           {prefersReduced ? (
             <span className={`block ${lineClassName}`}>{line}</span>
           ) : (
             <motion.span
-              initial={{ y: '110%', opacity: 0 }}
-              whileInView={{ y: '0%', opacity: 1 }}
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{
-                duration: 0.85,
+                duration: 0.8,
                 delay: delay + i * stagger,
                 ease: EDITORIAL_EASE,
               }}

@@ -62,9 +62,9 @@ export default {
         lead: ['clamp(1rem, 0.94rem + 0.4vw, 1.272rem)', { lineHeight: '1.618' }],
         h4: ['clamp(1.05rem, 1rem + 0.3vw, 1.272rem)', { lineHeight: '1.3', letterSpacing: '-0.005em' }],
         h3: ['clamp(1.272rem, 1.15rem + 0.55vw, 1.618rem)', { lineHeight: '1.25', letterSpacing: '-0.01em' }],
-        h2: ['clamp(1.618rem, 1.2rem + 1.7vw, 2.618rem)', { lineHeight: '1.12', letterSpacing: '-0.015em' }],
-        h1: ['clamp(2.058rem, 1.35rem + 2.9vw, 4.236rem)', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
-        statement: ['clamp(1.8rem, 1.05rem + 3.2vw, 3.33rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        h2: ['clamp(1.618rem, 1.2rem + 1.7vw, 2.618rem)', { lineHeight: '1.18', letterSpacing: '-0.015em' }],
+        h1: ['clamp(2.058rem, 1.35rem + 2.9vw, 4.236rem)', { lineHeight: '1.15', letterSpacing: '-0.02em' }],
+        statement: ['clamp(1.8rem, 1.05rem + 3.2vw, 3.33rem)', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
       },
       maxWidth: {
         content: '1440px',

@@ -48,17 +48,15 @@ export default function Leadership() {
           >
             <Eyebrow>Our People</Eyebrow>
           </motion.div>
-          <div className="mt-5 overflow-hidden">
-            <motion.h2
-              initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
-              whileInView={{ y: '0%', opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
-              className="max-w-3xl text-h2 font-semibold text-graphite-900"
-            >
-              Executive Leadership &amp; Board of Directors
-            </motion.h2>
-          </div>
+          <motion.h2
+            initial={prefersReduced ? { opacity: 1 } : { y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
+            className="mt-5 max-w-3xl text-h2 font-semibold text-graphite-900"
+          >
+            Executive Leadership &amp; Board of Directors
+          </motion.h2>
           <motion.p
             initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}

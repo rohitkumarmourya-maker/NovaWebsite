@@ -55,28 +55,24 @@ export default function About() {
         <div className="container-nova">
           <Eyebrow>Our Business Philosophy</Eyebrow>
           <p className="mt-6 max-w-4xl font-display text-statement font-semibold text-graphite-900">
-            <span className="block overflow-hidden">
-              <motion.span
-                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
-                whileInView={{ y: '0%', opacity: 1 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.85, ease: EDITORIAL_EASE }}
-                className="block"
-              >
-                One engineering mindset,
-              </motion.span>
-            </span>
-            <span className="block overflow-hidden">
-              <motion.span
-                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
-                whileInView={{ y: '0%', opacity: 1 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.12, ease: EDITORIAL_EASE }}
-                className="block text-ember-700"
-              >
-                applied across manufacturing, technology, healthcare products, skills and infrastructure.
-              </motion.span>
-            </span>
+            <motion.span
+              initial={prefersReduced ? { opacity: 1 } : { y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, ease: EDITORIAL_EASE }}
+              className="block"
+            >
+              One engineering mindset,
+            </motion.span>
+            <motion.span
+              initial={prefersReduced ? { opacity: 1 } : { y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.12, ease: EDITORIAL_EASE }}
+              className="block text-ember-700"
+            >
+              applied across manufacturing, technology, healthcare products, skills and infrastructure.
+            </motion.span>
           </p>
         </div>
       </section>

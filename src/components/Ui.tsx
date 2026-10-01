@@ -141,16 +141,14 @@ export function PageHero({
           >
             <Eyebrow dark={dark}>{eyebrow}</Eyebrow>
           </motion.div>
-          <div className="overflow-hidden">
-            <motion.h1
-              initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
-              animate={{ y: '0%', opacity: 1 }}
-              transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
-              className={`mt-6 max-w-4xl text-h1 font-bold ${dark ? 'text-white' : 'text-graphite-900'}`}
-            >
-              {title}
-            </motion.h1>
-          </div>
+          <motion.h1
+            initial={prefersReduced ? { opacity: 1 } : { y: 22, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
+            className={`mt-6 max-w-4xl text-h1 font-bold ${dark ? 'text-white' : 'text-graphite-900'}`}
+          >
+            {title}
+          </motion.h1>
           {lead && (
             <motion.p
               initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 18 }}

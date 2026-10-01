@@ -34,36 +34,30 @@ export default function Home() {
             </motion.div>
             <h1 className="mt-6 max-w-4xl text-h1 font-bold text-graphite-900">
               <span className="sr-only">Nova Ventures: </span>
-              <span className="block overflow-hidden">
-                <motion.span
-                  initial={prefersReduced ? { opacity: 1 } : { y: '110%', opacity: 0 }}
-                  animate={{ y: '0%', opacity: 1 }}
-                  transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
-                  className="block"
-                >
-                  Engineering.
-                </motion.span>
-              </span>
-              <span className="block overflow-hidden">
-                <motion.span
-                  initial={prefersReduced ? { opacity: 1 } : { y: '110%', opacity: 0 }}
-                  animate={{ y: '0%', opacity: 1 }}
-                  transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.18, ease: EDITORIAL_EASE }}
-                  className="block"
-                >
-                  Technology.
-                </motion.span>
-              </span>
-              <span className="block overflow-hidden">
-                <motion.span
-                  initial={prefersReduced ? { opacity: 1 } : { y: '110%', opacity: 0 }}
-                  animate={{ y: '0%', opacity: 1 }}
-                  transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.28, ease: EDITORIAL_EASE }}
-                  className="block text-ember-700"
-                >
-                  Possibility.
-                </motion.span>
-              </span>
+              <motion.span
+                initial={prefersReduced ? { opacity: 1 } : { y: 22, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.08, ease: EDITORIAL_EASE }}
+                className="block"
+              >
+                Engineering.
+              </motion.span>
+              <motion.span
+                initial={prefersReduced ? { opacity: 1 } : { y: 22, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.18, ease: EDITORIAL_EASE }}
+                className="block"
+              >
+                Technology.
+              </motion.span>
+              <motion.span
+                initial={prefersReduced ? { opacity: 1 } : { y: 22, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.28, ease: EDITORIAL_EASE }}
+                className="block text-ember-700"
+              >
+                Possibility.
+              </motion.span>
             </h1>
             <motion.p
               initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 22 }}
@@ -93,28 +87,24 @@ export default function Home() {
       <section className="py-20 sm:py-28">
         <div className="container-nova">
           <p className="max-w-5xl font-display text-statement font-semibold text-graphite-900">
-            <span className="block overflow-hidden">
-              <motion.span
-                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
-                whileInView={{ y: '0%', opacity: 1 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.85, ease: EDITORIAL_EASE }}
-                className="block"
-              >
-                Building across industries.
-              </motion.span>
-            </span>
-            <span className="block overflow-hidden">
-              <motion.span
-                initial={prefersReduced ? { opacity: 1 } : { y: '100%', opacity: 0 }}
-                whileInView={{ y: '0%', opacity: 1 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.85, delay: prefersReduced ? 0 : 0.12, ease: EDITORIAL_EASE }}
-                className="block text-ember-700"
-              >
-                Connected by innovation.
-              </motion.span>
-            </span>
+            <motion.span
+              initial={prefersReduced ? { opacity: 1 } : { y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, ease: EDITORIAL_EASE }}
+              className="block"
+            >
+              Building across industries.
+            </motion.span>
+            <motion.span
+              initial={prefersReduced ? { opacity: 1 } : { y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: prefersReduced ? 0 : 0.12, ease: EDITORIAL_EASE }}
+              className="block text-ember-700"
+            >
+              Connected by innovation.
+            </motion.span>
           </p>
         </div>
       </section>
