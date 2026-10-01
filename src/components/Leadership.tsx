@@ -6,7 +6,6 @@ import { EDITORIAL_EASE } from './motion/MotionPrimitives'
 
 export default function Leadership() {
   const [selectedLeaderId, setSelectedLeaderId] = useState<string | null>(null)
-  const [hoveredLeaderId, setHoveredLeaderId] = useState<string | null>(null)
   const prefersReduced = useReducedMotion()
   const profileRef = useRef<HTMLDivElement>(null)
 
@@ -21,11 +20,19 @@ export default function Leadership() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // When a leader is selected, scroll smoothly into view if on mobile/small screen
+  // When a leader is selected, scroll smoothly into view without layout hitching
   useEffect(() => {
-    if (selectedLeaderId && profileRef.current) {
-      profileRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-    }
+    if (!selectedLeaderId) return
+    const frame = requestAnimationFrame(() => {
+      if (!profileRef.current) return
+      const rect = profileRef.current.getBoundingClientRect()
+      const headerOffset = 90
+      if (rect.top < headerOffset || rect.top > window.innerHeight * 0.7) {
+        const targetScroll = window.scrollY + rect.top - headerOffset
+        window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' })
+      }
+    })
+    return () => cancelAnimationFrame(frame)
   }, [selectedLeaderId])
 
   return (
@@ -181,19 +188,18 @@ export default function Leadership() {
         </AnimatePresence>
 
         {/* 4 Executive Portrait Cards Gallery */}
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          className="executive-gallery mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          data-has-selection={selectedLeaderId !== null ? 'true' : 'false'}
+        >
           {executiveLeaders.map((leader, i) => (
             <ExecutiveCard
               key={leader.id}
               leader={leader}
               index={i}
               isSelected={selectedLeaderId === leader.id}
-              isHovered={hoveredLeaderId === leader.id}
               hasSelection={selectedLeaderId !== null}
-              hasHover={hoveredLeaderId !== null}
               onSelect={() => setSelectedLeaderId(selectedLeaderId === leader.id ? null : leader.id)}
-              onHoverStart={() => setHoveredLeaderId(leader.id)}
-              onHoverEnd={() => setHoveredLeaderId(null)}
               prefersReduced={prefersReduced}
             />
           ))}
@@ -207,60 +213,58 @@ function ExecutiveCard({
   leader,
   index,
   isSelected,
-  isHovered,
   hasSelection,
-  hasHover,
   onSelect,
-  onHoverStart,
-  onHoverEnd,
   prefersReduced,
 }: {
   leader: ExecutiveLeader
   index: number
   isSelected: boolean
-  isHovered: boolean
   hasSelection: boolean
-  hasHover: boolean
   onSelect: () => void
-  onHoverStart: () => void
-  onHoverEnd: () => void
   prefersReduced: boolean | null
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 })
+  const rafRef = useRef<number | null>(null)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (prefersReduced || !cardRef.current) return
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const normX = x / rect.width - 0.5
-    const normY = y / rect.height - 0.5
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
 
-    // Very subtle tilt: rotateX ±1.2deg, rotateY ±1.8deg
-    setTilt({
-      x: -normY * 2.4,
-      y: normX * 3.2,
+    const card = cardRef.current
+    const rect = card.getBoundingClientRect()
+    const normX = (e.clientX - rect.left) / rect.width - 0.5
+    const normY = (e.clientY - rect.top) / rect.height - 0.5
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => {
+      if (!card) return
+      // Very subtle tilt: rotateX ±1.2deg, rotateY ±1.8deg
+      card.style.setProperty('--tilt-rx', `${(-normY * 2.2).toFixed(2)}deg`)
+      card.style.setProperty('--tilt-ry', `${(normX * 3.0).toFixed(2)}deg`)
+      card.style.setProperty('--spotlight-x', `${((normX + 0.5) * 100).toFixed(1)}%`)
+      card.style.setProperty('--spotlight-y', `${((normY + 0.5) * 100).toFixed(1)}%`)
+      card.style.setProperty('--spotlight-opacity', '1')
     })
-    setMousePos({
-      x: (x / rect.width) * 100,
-      y: (y / rect.height) * 100,
-    })
+  }
+
+  const handleMouseEnter = () => {
+    if (prefersReduced || !cardRef.current) return
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    cardRef.current.style.transition = 'transform 0.08s ease-out, box-shadow 0.3s ease'
   }
 
   const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 })
-    onHoverEnd()
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    if (cardRef.current) {
+      cardRef.current.style.transition = 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease'
+      cardRef.current.style.setProperty('--tilt-rx', '0deg')
+      cardRef.current.style.setProperty('--tilt-ry', '0deg')
+      cardRef.current.style.setProperty('--spotlight-opacity', '0')
+    }
   }
 
-  // Focus effect: active card has full opacity; other cards gently dim
-  let cardOpacity = 1
-  if (hasSelection) {
-    cardOpacity = isSelected ? 1 : 0.45
-  } else if (hasHover) {
-    cardOpacity = isHovered ? 1 : 0.82
-  }
+  const cardOpacity = hasSelection ? (isSelected ? 1 : 0.45) : undefined
 
   return (
     <motion.div
@@ -272,8 +276,8 @@ function ExecutiveCard({
         delay: prefersReduced ? 0 : index * 0.1,
         ease: EDITORIAL_EASE,
       }}
-      style={{ opacity: cardOpacity }}
-      className="perspective-card transition-opacity duration-300 ease-editorial"
+      style={cardOpacity !== undefined ? { opacity: cardOpacity } : undefined}
+      className="perspective-card executive-card-wrapper transition-opacity duration-300 ease-editorial"
     >
       <div
         ref={cardRef}
@@ -289,30 +293,22 @@ function ExecutiveCard({
           }
         }}
         onMouseMove={handleMouseMove}
-        onMouseEnter={onHoverStart}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className={`group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border bg-white transition-all duration-300 ease-editorial focus-visible:ring-2 focus-visible:ring-ember ${
+        className={`group executive-card-surface relative flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border bg-white transition-all duration-300 ease-editorial focus-visible:ring-2 focus-visible:ring-ember ${
           isSelected
             ? 'border-ember shadow-lift ring-1 ring-ember'
-            : isHovered
-              ? 'border-graphite-900/25 shadow-lift'
-              : 'border-graphite-900/10 shadow-soft'
+            : 'border-graphite-900/10 shadow-soft hover:border-graphite-900/25 hover:shadow-lift'
         }`}
-        style={
-          prefersReduced
-            ? undefined
-            : {
-                transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease',
-              }
-        }
       >
-        {/* Soft Cursor Spotlight (Ember Accent) */}
-        {!prefersReduced && isHovered && (
+        {/* Soft Cursor Spotlight (Ember Accent, Zero-ReRender via CSS Variable) */}
+        {!prefersReduced && (
           <div
-            className="pointer-events-none absolute inset-0 z-20 rounded-3xl opacity-100 transition-opacity duration-300"
+            className="pointer-events-none absolute inset-0 z-20 rounded-3xl transition-opacity duration-300"
             style={{
-              background: `radial-gradient(circle 180px at ${mousePos.x}% ${mousePos.y}%, rgba(245, 164, 37, 0.14), transparent 70%)`,
+              opacity: 'var(--spotlight-opacity, 0)',
+              background:
+                'radial-gradient(circle 190px at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(245, 164, 37, 0.13), transparent 70%)',
             }}
             aria-hidden="true"
           />
@@ -364,8 +360,8 @@ function ExecutiveCard({
           <div className="mt-5 border-t border-graphite-900/10 pt-4">
             <div className="relative mb-2 h-0.5 w-full overflow-hidden">
               <div
-                 className={`h-full bg-ember transition-all duration-300 ease-editorial ${
-                  isHovered || isSelected ? 'w-full' : 'w-0'
+                className={`h-full bg-ember transition-all duration-300 ease-editorial ${
+                  isSelected ? 'w-full' : 'w-0 group-hover:w-full'
                 }`}
               />
             </div>
@@ -375,7 +371,7 @@ function ExecutiveCard({
               </span>
               <span
                 className={`inline-flex items-center gap-1.5 text-ember-700 transition-all duration-300 ease-editorial ${
-                  isHovered || isSelected ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'
+                  isSelected ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'
                 }`}
                 aria-hidden="true"
               >

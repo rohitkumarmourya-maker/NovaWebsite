@@ -111,10 +111,10 @@ export function ClipRevealImage({
 
   return (
     <motion.div
-      initial={{ clipPath: 'inset(0% 40% 0% 40%)', scale: 1.05, opacity: 0.85 }}
-      whileInView={{ clipPath: 'inset(0% 0% 0% 0%)', scale: 1, opacity: 1 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 1.1, delay, ease: EDITORIAL_EASE }}
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={{ duration: 0.75, delay, ease: EDITORIAL_EASE }}
       className={`overflow-hidden will-change-transform ${className}`}
     >
       {children}

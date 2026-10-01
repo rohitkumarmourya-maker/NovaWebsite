@@ -92,9 +92,9 @@ export default function SiteImage({
   if (priority) {
     return (
       <motion.div
-        initial={{ scale: 1.05, opacity: 0.95 }}
+        initial={{ scale: 1.025, opacity: 0.95 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 2.5, ease: EDITORIAL_EASE }}
+        transition={{ duration: 1.2, ease: EDITORIAL_EASE }}
         className="w-full overflow-hidden rounded-2xl will-change-transform"
       >
         {imageContent}
@@ -105,10 +105,10 @@ export default function SiteImage({
   if (shouldReveal) {
     return (
       <motion.div
-        initial={{ clipPath: 'inset(0% 40% 0% 40%)', scale: 1.05 }}
-        whileInView={{ clipPath: 'inset(0% 0% 0% 0%)', scale: 1 }}
-        viewport={{ once: true, amount: 0.15 }}
-        transition={{ duration: 1.05, ease: EDITORIAL_EASE }}
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.12 }}
+        transition={{ duration: 0.75, ease: EDITORIAL_EASE }}
         className="w-full overflow-hidden rounded-2xl will-change-transform"
       >
         {imageContent}
