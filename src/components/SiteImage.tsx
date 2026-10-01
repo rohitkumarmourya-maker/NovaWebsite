@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { getImage } from '../data/imageInventory'
 import { imageManifest, webpSrcSet } from '../data/imageManifest'
@@ -42,6 +43,16 @@ export default function SiteImage({
   const variant = imageManifest[id]
   const spec = getImage(id)
 
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isRevealed, setIsRevealed] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true)
+    }
+  }, [])
+
   if (!variant) {
     return (
       <div
@@ -57,49 +68,78 @@ export default function SiteImage({
   const text = alt ?? spec?.purpose ?? 'Nova Ventures'
   const style = fit === 'natural' ? { aspectRatio: `${variant.width} / ${variant.height}` } : undefined
 
+  const revealVariants = prefersReduced
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+      }
+    : {
+        initial: {
+          clipPath: 'inset(0% 50% 0% 50%)',
+          opacity: 0,
+          scale: 1.05,
+          filter: 'blur(6px)',
+        },
+        animate: {
+          clipPath: 'inset(0% 0% 0% 0%)',
+          opacity: 1,
+          scale: 1,
+          filter: 'blur(0px)',
+        },
+      }
+
   const imageContent = (
     <div
       className={`relative w-full overflow-hidden ${rounded} bg-sand-100 ${fit === 'cover' ? 'aspect-[3/2]' : ''} ${className}`}
       style={style}
     >
-      <picture className={fit === 'cover' ? 'absolute inset-0 h-full w-full' : ''}>
-        <source type="image/webp" srcSet={webpSrcSet(id)} sizes={sizes} />
-        <img
-          src={variant.fallback}
-          width={variant.width}
-          height={variant.height}
-          alt={text}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding={priority ? 'sync' : 'async'}
-          fetchPriority={priority ? 'high' : 'auto'}
-          sizes={sizes}
-          className={`h-full w-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
-        />
-      </picture>
-      {overlay && (
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/25 via-transparent to-transparent"
-          aria-hidden="true"
-        />
-      )}
+      <motion.div
+        initial="initial"
+        animate={isLoaded ? 'animate' : 'initial'}
+        variants={revealVariants}
+        transition={{
+          duration: prefersReduced ? 0.3 : priority ? 1.05 : 0.95,
+          ease: EDITORIAL_EASE,
+        }}
+        onAnimationComplete={() => setIsRevealed(true)}
+        style={
+          isRevealed
+            ? { clipPath: 'none', filter: 'none', transform: 'none' }
+            : undefined
+        }
+        className={`h-full w-full ${fit === 'cover' ? 'absolute inset-0' : 'relative'} ${
+          isRevealed ? '' : 'will-change-[clip-path,transform,opacity,filter]'
+        }`}
+      >
+        <picture className={fit === 'cover' ? 'absolute inset-0 h-full w-full block' : 'block h-full w-full'}>
+          <source type="image/webp" srcSet={webpSrcSet(id)} sizes={sizes} />
+          <img
+            ref={imgRef}
+            src={variant.fallback}
+            width={variant.width}
+            height={variant.height}
+            alt={text}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding={priority ? 'sync' : 'async'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            sizes={sizes}
+            onLoad={() => setIsLoaded(true)}
+            onError={() => setIsLoaded(true)}
+            className={`h-full w-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
+          />
+        </picture>
+        {overlay && (
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/25 via-transparent to-transparent"
+            aria-hidden="true"
+          />
+        )}
+      </motion.div>
     </div>
   )
 
   if (prefersReduced) {
     return imageContent
-  }
-
-  if (priority) {
-    return (
-      <motion.div
-        initial={{ scale: 1.025, opacity: 0.95 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: EDITORIAL_EASE }}
-        className="w-full overflow-hidden rounded-2xl will-change-transform"
-      >
-        {imageContent}
-      </motion.div>
-    )
   }
 
   if (shouldReveal) {
