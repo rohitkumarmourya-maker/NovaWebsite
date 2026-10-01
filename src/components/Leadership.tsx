@@ -101,12 +101,11 @@ export default function Leadership() {
                 {/* Large Portrait Presentation */}
                 <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-graphite-900 text-white/50">
                   {selectedLeader.photo ? (
-                    <ExecutivePortrait
+                    <img
                       src={selectedLeader.photo}
                       alt={selectedLeader.name}
                       width={600}
                       height={800}
-                      prefersReduced={prefersReduced}
                       className="h-full w-full object-cover object-top"
                     />
                   ) : (
@@ -316,12 +315,12 @@ function ExecutiveCard({
         {/* Card Portrait Container */}
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-graphite-950 text-white/40">
           {leader.photo ? (
-            <ExecutivePortrait
+            <img
               src={leader.photo}
               alt={leader.name}
+              loading="lazy"
               width={400}
               height={500}
-              prefersReduced={prefersReduced}
               className="h-full w-full object-cover object-top transition-transform duration-500 ease-editorial group-hover:scale-[1.035]"
             />
           ) : (
@@ -383,83 +382,3 @@ function ExecutiveCard({
     </motion.div>
   )
 }
-
-function ExecutivePortrait({
-  src,
-  alt,
-  width,
-  height,
-  className = '',
-  prefersReduced,
-}: {
-  src: string
-  alt: string
-  width: number
-  height: number
-  className?: string
-  prefersReduced: boolean | null
-}) {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [isRevealed, setIsRevealed] = useState(false)
-  const imgRef = useRef<HTMLImageElement>(null)
-
-  useEffect(() => {
-    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
-      setIsLoaded(true)
-    }
-  }, [])
-
-  const revealVariants = prefersReduced
-    ? {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-      }
-    : {
-        initial: {
-          clipPath: 'inset(0% 50% 0% 50%)',
-          opacity: 0,
-          scale: 1.05,
-          filter: 'blur(6px)',
-        },
-        animate: {
-          clipPath: 'inset(0% 0% 0% 0%)',
-          opacity: 1,
-          scale: 1,
-          filter: 'blur(0px)',
-        },
-      }
-
-  return (
-    <motion.div
-      initial="initial"
-      animate={isLoaded ? 'animate' : 'initial'}
-      variants={revealVariants}
-      transition={{
-        duration: prefersReduced ? 0.3 : 0.95,
-        ease: EDITORIAL_EASE,
-      }}
-      onAnimationComplete={() => setIsRevealed(true)}
-      style={
-        isRevealed
-          ? { clipPath: 'none', filter: 'none', transform: 'none' }
-          : undefined
-      }
-      className={`h-full w-full overflow-hidden ${
-        isRevealed ? '' : 'will-change-[clip-path,transform,opacity,filter]'
-      }`}
-    >
-      <img
-        ref={imgRef}
-        src={src}
-        alt={alt}
-        loading="lazy"
-        width={width}
-        height={height}
-        onLoad={() => setIsLoaded(true)}
-        onError={() => setIsLoaded(true)}
-        className={className}
-      />
-    </motion.div>
-  )
-}
-
