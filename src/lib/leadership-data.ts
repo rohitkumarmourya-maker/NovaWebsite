@@ -89,19 +89,26 @@ His leadership is guided by integrity, responsible growth and a long-term commit
   {
     id: 'leader-04',
     number: '04',
-    name: 'Director',
-    role: 'Director — Board Member',
-    photo: null,
-    intro: 'Guiding organizational expansion, operational capability, and enterprise development.',
-    biography:
-      'Directs key enterprise growth initiatives, institutional collaborations, and cross-functional capability development across Nova Ventures.',
+    name: 'Mr. Vinay James',
+    role: 'Director',
+    photo: '/images/leadership/vinay-james.webp',
+    intro:
+      'Over fifteen years of versatile leadership across sales, marketing, institutional financial administration, and technical infrastructure.',
+    biography: `Mr. Vinay James brings over fifteen years of versatile experience spanning sales, marketing, financial management, and hands-on infrastructure execution. His professional career combines strategic commercial acumen with rigorous operational and financial discipline across enterprise and institutional environments.
+
+Following his extensive work in commercial sales and market development, Mr. James has served for over eight years as the Treasurer of COC Mission in India. In this capacity, he has overseen organizational accounts, financial governance, statutory compliance, and institutional budgeting, ensuring fiscal accountability and sustainable resource allocation.
+
+Complementing his commercial and financial stewardship, Mr. James possesses practical technical expertise in electrical infrastructure and engineering works, with end-to-end execution knowledge across residential and commercial developments. He also holds a strong passion for metal fabrication and precision welding, bringing a grounded, engineering-first perspective to fabrication workflows.
+
+At Nova Ventures Innovation and Technology Private Limited, Mr. James contributes his diverse expertise towards driving business development, operational discipline, and technical execution across the group's engineering and commercial initiatives. His hands-on understanding of both commerce and craftsmanship reinforces the company’s commitment to high-integrity, quality-driven growth.`,
     leadershipAreas: [
-      'Corporate Governance',
-      'Institutional Planning',
-      'Operational Capability',
-      'Enterprise Growth',
+      'Sales & Marketing Strategy',
+      'Financial Administration',
+      'Electrical Infrastructure',
+      'Metal Fabrication & Welding',
+      'Enterprise Operations',
     ],
-    status: 'pending',
+    status: 'published',
   },
 ]
 
