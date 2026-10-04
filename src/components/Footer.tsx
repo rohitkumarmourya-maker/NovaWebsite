@@ -116,6 +116,40 @@ export default function Footer() {
               </>
             )}
           </address>
+
+          <div className="mt-6">
+            <a
+              href="https://q.me-qr.com/nbzy9z1h"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Scan or tap to open Nova Ventures office location in Google Maps"
+              className="group inline-flex items-center gap-3.5 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 transition-colors hover:border-ember/40 hover:bg-white/[0.08]"
+            >
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-white p-1.5 shadow-sm">
+                <picture>
+                  <source type="image/webp" srcSet="/images/office-location-qr.webp" />
+                  <img
+                    src="/images/office-location-qr.png"
+                    alt="Nova Ventures office location QR code"
+                    width={80}
+                    height={80}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                </picture>
+              </div>
+              <div className="flex flex-col pr-2">
+                <span className="text-eyebrow font-bold uppercase tracking-wider text-ember">Location</span>
+                <span className="mt-0.5 text-small font-medium text-white transition-colors group-hover:text-ember">
+                  Scan for Directions
+                </span>
+                <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-white/50 transition-colors group-hover:text-white/80">
+                  <span>Open in Maps</span>
+                  <span className="transition-transform duration-300 ease-editorial group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
+                </span>
+              </div>
+            </a>
+          </div>
         </motion.div>
       </div>
 

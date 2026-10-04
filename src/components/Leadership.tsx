@@ -84,7 +84,7 @@ export default function Leadership() {
             >
               <div className="flex items-center justify-between border-b border-graphite-900/10 pb-5">
                 <span className="font-display text-small font-bold text-ember-700">
-                  EXECUTIVE PROFILE {selectedLeader.number} / 04
+                  EXECUTIVE PROFILE
                 </span>
                 <button
                   type="button"
@@ -118,7 +118,7 @@ export default function Leadership() {
                         </svg>
                       </div>
                       <span className="font-display text-eyebrow font-bold tracking-wide2 text-ember">
-                        {selectedLeader.number}
+                        DIRECTOR
                       </span>
                       <p className="mt-2 text-small text-white/60">Board of Directors</p>
                     </div>
@@ -336,11 +336,6 @@ function ExecutiveCard({
               <span className="mt-1 text-eyebrow text-white/40">Director</span>
             </div>
           )}
-
-          {/* Director Number Badge */}
-          <div className="absolute left-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-graphite-950/70 backdrop-blur-sm">
-            <span className="font-display text-eyebrow font-bold text-ember">{leader.number}</span>
-          </div>
 
           {/* Subtle gradient vignette */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-graphite-950/60 via-transparent to-transparent" />
