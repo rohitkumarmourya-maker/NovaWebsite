@@ -42,12 +42,16 @@ export default function SiteImage({
   const variant = imageManifest[id]
   const spec = getImage(id)
 
-  const [isLoaded, setIsLoaded] = useState(isServer)
+  // If already complete in DOM (e.g. cached / prerendered / fast network), start as loaded
+  const [isLoaded, setIsLoaded] = useState(() => {
+    if (isServer) return true
+    return false
+  })
   const [isRevealed, setIsRevealed] = useState(isServer)
   const imgRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
-    // 1. If already complete (e.g. cached), immediately mark revealed
+    // 1. If already complete (e.g. cached or fast load), immediately mark revealed
     if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
       setIsLoaded(true)
       setIsRevealed(true)
@@ -58,7 +62,7 @@ export default function SiteImage({
     const timer = setTimeout(() => {
       setIsLoaded(true)
       setIsRevealed(true)
-    }, 1200)
+    }, 600)
 
     return () => clearTimeout(timer)
   }, [])
@@ -106,7 +110,7 @@ export default function SiteImage({
         animate={isLoaded ? 'animate' : 'initial'}
         variants={revealVariants}
         transition={{
-          duration: prefersReduced ? 0.3 : priority ? 1.05 : 0.95,
+          duration: prefersReduced ? 0.25 : priority ? 0.65 : 0.6,
           ease: EDITORIAL_EASE,
         }}
         onAnimationComplete={() => setIsRevealed(true)}
@@ -128,7 +132,7 @@ export default function SiteImage({
             height={variant.height}
             alt={text}
             loading={priority ? 'eager' : 'lazy'}
-            decoding={priority ? 'sync' : 'async'}
+            decoding="async"
             fetchPriority={priority ? 'high' : 'auto'}
             sizes={sizes}
             onLoad={() => setIsLoaded(true)}

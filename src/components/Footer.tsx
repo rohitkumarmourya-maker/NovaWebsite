@@ -135,6 +135,7 @@ export default function Footer() {
                     height={80}
                     className="h-full w-full object-contain"
                     loading="lazy"
+                    decoding="async"
                   />
                 </picture>
               </div>

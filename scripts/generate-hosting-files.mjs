@@ -127,6 +127,8 @@ const vercel = {
     { source: '/(.*)', headers: Object.entries(headers).map(([key, value]) => ({ key, value })) },
     { source: '/assets/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
     { source: '/fonts/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
+    { source: '/images/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }] },
+    { source: '/logos/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }] },
   ],
   rewrites: [
     { source: '/api/:path*', destination: '/api' },

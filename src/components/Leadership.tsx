@@ -395,12 +395,15 @@ function ExecutivePortrait({
   prefersReduced: boolean | null
 }) {
   const isServer = typeof window === 'undefined'
-  const [isLoaded, setIsLoaded] = useState(isServer)
+  const [isLoaded, setIsLoaded] = useState(() => {
+    if (isServer) return true
+    return false
+  })
   const [isRevealed, setIsRevealed] = useState(isServer)
   const imgRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
-    // 1. If already complete (e.g. cached), immediately mark revealed
+    // 1. If already complete (e.g. cached or fast load), immediately mark revealed
     if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
       setIsLoaded(true)
       setIsRevealed(true)
@@ -411,7 +414,7 @@ function ExecutivePortrait({
     const timer = setTimeout(() => {
       setIsLoaded(true)
       setIsRevealed(true)
-    }, 1200)
+    }, 600)
 
     return () => clearTimeout(timer)
   }, [])
@@ -440,7 +443,7 @@ function ExecutivePortrait({
       animate={isLoaded ? 'animate' : 'initial'}
       variants={revealVariants}
       transition={{
-        duration: prefersReduced ? 0.3 : 0.95,
+        duration: prefersReduced ? 0.25 : 0.6,
         ease: EDITORIAL_EASE,
       }}
       onAnimationComplete={() => setIsRevealed(true)}
@@ -458,6 +461,7 @@ function ExecutivePortrait({
         src={src}
         alt={alt}
         loading="lazy"
+        decoding="async"
         width={width}
         height={height}
         onLoad={() => setIsLoaded(true)}
